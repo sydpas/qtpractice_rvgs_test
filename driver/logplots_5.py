@@ -44,7 +44,9 @@ class WellLogPlotter(FigureCanvas):
         ax_list, col_list = organize_curves()
 
         self.fig.clear()
-        self.axes = self.fig.subplots(1, len(ax_list), sharey = True)
+        self.axes = self.fig.subplots(1, len(ax_list), sharey = True, gridspec_kw={'width_ratios': [len(ax_list[0]), len(ax_list[1]), len(ax_list[2]),
+                                                               len(ax_list[3]), len(ax_list[4])]})
+
 
         for i, (curves, ax) in enumerate(zip(ax_list, self.axes)):  # zip pairs up elements from 2 lists and brings them together
             ax = self.axes[i]
@@ -99,9 +101,14 @@ class WellLogPlotter(FigureCanvas):
 
                         current_ax.set_xlabel('')  # removing x label
 
-                    else:
+                    elif current_ax == ax:
                         df.plot(
                             x=curve, y='DEPTH', color='blue', ax=current_ax, label=curve,
+                            linewidth=0.5, marker='o', markersize=0.2, alpha=0.5)
+
+                    elif current_ax == ax2:
+                        df.plot(
+                            x=curve, y='DEPTH', color='red', ax=current_ax, label=curve,
                             linewidth=0.5, marker='o', markersize=0.2, alpha=0.5)
 
                         current_ax.set_xlabel('')  # removing x label
