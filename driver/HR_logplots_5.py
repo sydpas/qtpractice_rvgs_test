@@ -54,6 +54,8 @@ class WellLogPlotter(FigureCanvas):
             unit = curve_unit_list[i+1]
             top = well_tops_list[0]
 
+            print(f'Plotting curve: {curves}...')
+
             for horz, depth in top.items():
                 if pd.notna(depth):
                     y = float(depth)
@@ -66,7 +68,6 @@ class WellLogPlotter(FigureCanvas):
                 ax3 = ax.twiny()
 
                 for j, curve in enumerate(curves):
-                    print(f'Plotting curve: {curve}...')
                     if curve == 'PE':
                         current_ax = ax
                     elif curve == 'RHOB':
@@ -142,8 +143,6 @@ class WellLogPlotter(FigureCanvas):
             ax2.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False, labeltop=False)
 
             for j, curve in enumerate(curves):
-                print(f'Plotting group: {curves}...')
-
                 ax.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False, labeltop=False)
                 if i != 0:
                     ax.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
@@ -199,7 +198,6 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout()
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
-
 
         # 'wrap' everything
         container = QWidget()

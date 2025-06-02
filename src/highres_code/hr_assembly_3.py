@@ -11,6 +11,10 @@ def organize_curves():
     # call necessary bg functions
     _, non_depth_curves, _, _, _, _ = highres_well()
 
+    for i, curve in enumerate(non_depth_curves):
+        print(f'Index {i}: {curve}')
+
+
     # using the non_depth_curves list, we can group accordingly...
     ax1 = [non_depth_curves[1], non_depth_curves[6]]
     col1 = len(ax1)
