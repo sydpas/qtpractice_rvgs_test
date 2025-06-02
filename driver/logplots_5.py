@@ -188,7 +188,6 @@ class WellLogPlotter(FigureCanvas):
                     bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.8', alpha=0.8))
 
 
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
