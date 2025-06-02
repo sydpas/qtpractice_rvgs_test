@@ -177,12 +177,6 @@ class WellLogPlotter(FigureCanvas):
                      bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.8', alpha=0.8))
 
 
-class CustomToolbar(NavigationToolbar):
-    def __init__(self, canvas, parent=None):
-        NavigationToolbar.__init__(self, canvas, parent)
-
-
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -191,11 +185,12 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 700, 1200)
 
         self.canvas = WellLogPlotter(self)
-        custom_tools = CustomToolbar(self.canvas, self)
+        self.toolbar = NavigationToolbar(self.canvas, self)
 
         layout = QVBoxLayout()
+        layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
-        layout.addWidget(custom_tools)
+
 
         # 'wrap' everything
         container = QWidget()
