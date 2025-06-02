@@ -31,7 +31,7 @@ class WellLogPlotter(FigureCanvas):
         self.plotting_logs()
 
     def load_data(self):
-        _, _, _, self.df = highres_well()
+        _, _, _, self.df, loc, comp = highres_well()
         self.well_tops_list = top_load()
         self.ax_list, self.col_list = organize_curves()
 
@@ -39,7 +39,8 @@ class WellLogPlotter(FigureCanvas):
         """
         This function plots the logs.
         """
-        columns, non_depth_curves, curve_unit_list, df = highres_well()
+        global current_ax
+        columns, non_depth_curves, curve_unit_list, df, loc, comp = highres_well()
         well_tops_list = top_load()
         ax_list, col_list = organize_curves()
 
@@ -106,12 +107,16 @@ class WellLogPlotter(FigureCanvas):
                             x=curve, y='DEPTH', color='blue', ax=current_ax, label=curve,
                             linewidth=0.5, marker='o', markersize=0.2, alpha=0.5)
 
+                        current_ax.set_xlabel('')  # removing x label
+
+
                     elif current_ax == ax2:
                         df.plot(
                             x=curve, y='DEPTH', color='red', ax=current_ax, label=curve,
                             linewidth=0.5, marker='o', markersize=0.2, alpha=0.5)
 
                         current_ax.set_xlabel('')  # removing x label
+
 
                 # adjusting proper y limits
                 ax.set_ylim(df['DEPTH'].min(), df['DEPTH'].max())
@@ -179,9 +184,8 @@ class WellLogPlotter(FigureCanvas):
             ax.grid(True, linestyle='-', alpha=0.3, linewidth=0.5)
             ax.set_title(' and '.join(curves), fontsize=10)
 
-        plt.suptitle('100/15-06-013-18W4/00, KI EXPLORATION INC.',
-                     fontsize=16, fontweight='bold',
-                     bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.8', alpha=0.8))
+        plt.suptitle(f'{loc}, {comp}', fontsize=16, fontweight='bold',
+                    bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.8', alpha=0.8))
 
 
 

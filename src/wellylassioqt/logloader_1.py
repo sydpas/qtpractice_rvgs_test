@@ -37,4 +37,7 @@ def highres_well():
 
     columns = len(non_depth_curves)
 
-    return columns, non_depth_curves, curve_unit_list, df
+    loc = las.well.LOC.value if 'LOC' in las.well else None
+    comp = las.well.COMP.value if 'COMP' in las.well else None
+
+    return columns, non_depth_curves, curve_unit_list, df, loc, comp

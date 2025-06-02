@@ -9,7 +9,7 @@ def organize_curves():
     """
 
     # call necessary bg functions
-    _, non_depth_curves, _, _ = highres_well()
+    _, non_depth_curves, _, _, _, _ = highres_well()
 
     # using the non_depth_curves list, we can group accordingly...
     ax1 = [non_depth_curves[1], non_depth_curves[6]]

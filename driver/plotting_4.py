@@ -33,7 +33,7 @@ class WellPlotCanvas(FigureCanvas):
         """
         This function plots the logs.
         """
-        columns, non_depth_curves, curve_unit_list, df = highres_well()
+        columns, non_depth_curves, curve_unit_list, df, _, _ = highres_well()
         well_tops_list = top_load()
 
         self.fig.clear()
