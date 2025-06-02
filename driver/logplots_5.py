@@ -18,9 +18,8 @@ from PySide6.QtWidgets import (
 
 class WellLogPlotter(FigureCanvas):
     def __init__(self, parent=None):
-        self.fig, self.axes = plt.subplots(1, 1, figsize=(10, 14))
+        self.fig, self.axes = plt.subplots(1, 1)
         super().__init__(self.fig)
-
 
         # loading data
         self.df = None
@@ -37,6 +36,9 @@ class WellLogPlotter(FigureCanvas):
         self.ax_list, self.col_list = organize_curves()
 
     def plotting_logs(self):
+        """
+        This function plots the logs.
+        """
         columns, non_depth_curves, curve_unit_list, df = highres_well()
         well_tops_list = top_load()
         ax_list, col_list = organize_curves()
@@ -52,9 +54,9 @@ class WellLogPlotter(FigureCanvas):
             for horz, depth in top.items():
                 if pd.notna(depth):
                     y = float(depth)
-                    ax.axhline(y=y, color='red', lw=1.5, ls='-')
+                    ax.axhline(y=y, color='red', lw=1.5, ls='-')  # tops
                     if i == 0:
-                        ax.text(x=-10, y=y, s=horz, color='red', fontsize=10, ha='center', va='center')
+                        ax.text(x=-20, y=y, s=horz, color='red', fontsize=8, ha='center', va='center')  # top names
 
             if i == 3 and len(curves) == 3:  # handling the fourth group
                 ax2 = ax.twiny()
@@ -116,12 +118,12 @@ class WellLogPlotter(FigureCanvas):
                 lines_1, labels_1 = ax.get_legend_handles_labels()
                 lines_2, labels_2 = ax2.get_legend_handles_labels()
                 lines_3, labels_3 = ax3.get_legend_handles_labels()
-                ax.legend(lines_1 + lines_2 + lines_3, labels_1 + labels_2 + labels_3, loc='lower left')
+                ax.legend(lines_1 + lines_2 + lines_3, labels_1 + labels_2 + labels_3, loc='lower left', fontsize=6)
                 ax2.get_legend().remove() if ax2.get_legend() else None
                 ax3.get_legend().remove() if ax3.get_legend() else None
 
                 ax.grid(True, linestyle='-', alpha=0.3, linewidth=0.5)
-                ax.set_title(' and '.join(curves), fontsize=12)
+                ax.set_title(' and '.join(curves), fontsize=10)
 
                 continue
 
@@ -164,36 +166,41 @@ class WellLogPlotter(FigureCanvas):
             if ax2:
                 lines_1, labels_1 = ax.get_legend_handles_labels()
                 lines_2, labels_2 = ax2.get_legend_handles_labels()
-                ax.legend(lines_1 + lines_2, labels_1 + labels_2, loc='lower left')
+                ax.legend(lines_1 + lines_2, labels_1 + labels_2, loc='lower left', fontsize=6)
                 ax2.get_legend().remove() if ax2.get_legend() else None
 
             ax.grid(True, linestyle='-', alpha=0.3, linewidth=0.5)
-            ax.set_title(' and '.join(curves), fontsize=12)
+            ax.set_title(' and '.join(curves), fontsize=10)
 
         plt.suptitle('100/15-06-013-18W4/00, KI EXPLORATION INC.',
-                     fontsize=18, fontweight='bold',
-                     bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=1', alpha=0.8))
+                     fontsize=16, fontweight='bold',
+                     bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.8', alpha=0.8))
+
+
+class CustomToolbar(NavigationToolbar):
+    def __init__(self, canvas, parent=None):
+        NavigationToolbar.__init__(self, canvas, parent)
+
+
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Well Log Plotter")
-        self.setGeometry(100, 100, 1200, 800)
+        self.setGeometry(100, 100, 700, 1200)
 
         self.canvas = WellLogPlotter(self)
-        self.toolbar = NavigationToolbar(self.canvas, self)
-
+        custom_tools = CustomToolbar(self.canvas, self)
 
         layout = QVBoxLayout()
         layout.addWidget(self.canvas)
-        layout.addWidget(self.toolbar)
+        layout.addWidget(custom_tools)
 
         # 'wrap' everything
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
-
 
 
 def main():
