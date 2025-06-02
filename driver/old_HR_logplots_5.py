@@ -2,7 +2,7 @@ import sys
 
 from highres_code.hr_logloader_1 import (highres_well)
 from wellylassioqt.topsloader_2 import (top_load)
-from highres_code.hr_assembly_3 import (organize_curves)
+from highres_code.old_hr_assembly_3 import (organize_curves)
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -45,10 +45,9 @@ class WellLogPlotter(FigureCanvas):
         ax_list, col_list = organize_curves()
 
         self.fig.clear()
-        self.axes = self.fig.subplots(1, len(ax_list), sharey = True, gridspec_kw={'width_ratios': [1, 2, 1, 2, 2]})
+        self.axes = self.fig.subplots(1, len(ax_list), sharey = True, gridspec_kw={'width_ratios': [len(ax_list[0]), len(ax_list[1]), len(ax_list[2]),
+                                                               len(ax_list[3]), len(ax_list[4])]})
 
-        shade_list = ['blue', 'green', 'orange', 'purple', 'brown', 'indigo']
-        curve_counter = 0
 
         for i, (curves, ax) in enumerate(zip(ax_list, self.axes)):  # zip pairs up elements from 2 lists and brings them together
             ax = self.axes[i]
@@ -64,15 +63,89 @@ class WellLogPlotter(FigureCanvas):
                     if i == 0:
                         ax.text(x=-20, y=y, s=horz, color='red', fontsize=8, ha='center', va='center')  # top names
 
+            if i == 3 and len(curves) == 3:  # handling the fourth group
+                ax2 = ax.twiny()
+                ax3 = ax.twiny()
+
+                for j, curve in enumerate(curves):
+                    if curve == 'PE':
+                        current_ax = ax
+                    elif curve == 'RHOB':
+                        current_ax = ax2
+                    elif curve == 'GR':
+                        current_ax = ax3
+
+                    ax.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False, labeltop=False)
+                    ax2.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False, labeltop=False)
+                    ax3.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False, labeltop=False)
+                    ax.tick_params(axis='y', which='both', right=False, left=False, labelleft=False, labelright=False)
+                    ax2.tick_params(axis='y', which='both', right=False, left=False, labelleft=False, labelright=False)
+                    ax3.tick_params(axis='y', which='both', right=False, left=False, labelleft=False, labelright=False)
+
+                    if curve == 'GR':
+                        df.plot(
+                            x='GR', y='DEPTH', color='black', ax=current_ax,
+                            linewidth=0.5, marker='o', markersize=0.2, alpha=0.5, label='GR')
+
+                        gr_min = df[curve].min()
+                        gr_max = df[curve].max()
+
+                        current_ax.fill_betweenx(df['DEPTH'], df[curve], 75,
+                                                 where=(df[curve] <= 75),
+                                                 facecolor='yellow', alpha=0.5)
+
+                        current_ax.fill_betweenx(df['DEPTH'], df[curve], gr_max,
+                                                 where=(df[curve] > 75),
+                                                 facecolor='white', alpha=0.5)
+
+                        current_ax.axvline(75, color='black', linewidth=0.5, alpha=0.5)
+                        current_ax.set_xlim(gr_min, gr_max)
+
+                        current_ax.set_xlabel('')  # removing x label
+
+                    elif current_ax == ax:
+                        df.plot(
+                            x=curve, y='DEPTH', color='blue', ax=current_ax, label=curve,
+                            linewidth=0.5, marker='o', markersize=0.2, alpha=0.5)
+
+                        current_ax.set_xlabel('')  # removing x label
+
+                    elif current_ax == ax2:
+                        df.plot(
+                            x=curve, y='DEPTH', color='green', ax=current_ax, label=curve,
+                            linewidth=0.5, marker='o', markersize=0.2, alpha=0.5)
+
+                        current_ax.set_xlabel('')  # removing x label
+
+
+                # adjusting proper y limits
+                ax.set_ylim(df['DEPTH'].min(), df['DEPTH'].max())
+
+                # x axis limits
+                ax.set_xlim(df[curves[0]].min(), df[curves[0]].max())
+                ax2.set_xlim(df[curves[1]].min(), df[curves[1]].max())
+                ax3.set_xlim(df[curves[2]].min(), df[curves[2]].max())
+
+                # combining the legends and putting bottom left
+                lines_1, labels_1 = ax.get_legend_handles_labels()
+                lines_2, labels_2 = ax2.get_legend_handles_labels()
+                lines_3, labels_3 = ax3.get_legend_handles_labels()
+                ax.legend(lines_1 + lines_2 + lines_3, labels_1 + labels_2 + labels_3, loc='lower left', fontsize=6)
+                ax2.get_legend().remove() if ax2.get_legend() else None
+                ax3.get_legend().remove() if ax3.get_legend() else None
+
+                ax.grid(True, linestyle='-', alpha=0.3, linewidth=0.5)
+                ax.set_title(' and '.join(curves), fontsize=10)
+
+                continue
+
             ax2 = ax.twiny()
             ax2.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False, labeltop=False)
 
             for j, curve in enumerate(curves):
-
                 ax.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False, labeltop=False)
                 if i != 0:
                     ax.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
-
 
                 if curve == 'GR':
                     df.plot(
@@ -83,16 +156,9 @@ class WellLogPlotter(FigureCanvas):
                     ax.axvline(75, color='black', linewidth=0.5, alpha=0.5)
 
                 else:
-
-                    shade = shade_list[curve_counter % len(shade_list)]
-                    curve_counter += 1
-
-                    print(f'Shade for {curve}: {shade}')
-
                     next_ax = ax2 if j > 0 and ax2 else ax
-
                     df.plot(
-                        x=curve, y='DEPTH', color=shade, ax=next_ax, label=curve,
+                        x=curve, y='DEPTH', color='blue', ax=next_ax, label=curve,
                         linewidth=0.5, marker='o', markersize=0.2, alpha=0.5)
 
             # adjusting proper y limits and x limits
