@@ -109,10 +109,9 @@ class WellLogPlotter(FigureCanvas):
 
                         current_ax.set_xlabel('')  # removing x label
 
-
                     elif current_ax == ax2:
                         df.plot(
-                            x=curve, y='DEPTH', color='red', ax=current_ax, label=curve,
+                            x=curve, y='DEPTH', color='green', ax=current_ax, label=curve,
                             linewidth=0.5, marker='o', markersize=0.2, alpha=0.5)
 
                         current_ax.set_xlabel('')  # removing x label
