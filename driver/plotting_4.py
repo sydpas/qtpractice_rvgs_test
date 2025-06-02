@@ -12,13 +12,14 @@ from matplotlib.backends.backend_qtagg import (
     )
 
 from PySide6.QtWidgets import (
-    QMainWindow, QVBoxLayout, QWidget, QApplication
+    QMainWindow, QVBoxLayout, QWidget, QApplication, QPushButton
     )
+
 
 # create the plot widget
 class WellPlotCanvas(FigureCanvas):
     def __init__(self, parent=None):  # constructor
-        self.fig, self.axes = plt.subplots(1,1, figsize=(10,14))
+        self.fig, self.axes = plt.subplots(1,1)
         self.fig.subplots_adjust(
             left=0.043,
             right=0.987,
@@ -28,8 +29,10 @@ class WellPlotCanvas(FigureCanvas):
         )  # values based on tight layout
         super().__init__(self.fig)  # initialize as a widget
 
-    # plotting the logs function
     def plot_logs(self):
+        """
+        This function plots the logs.
+        """
         columns, non_depth_curves, curve_unit_list, df = highres_well()
         well_tops_list = top_load()
 
@@ -93,6 +96,7 @@ class MainWindow(QMainWindow):
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
+
 
         # trigger plot
         self.canvas.plot_logs()
