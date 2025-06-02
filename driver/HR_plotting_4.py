@@ -1,6 +1,6 @@
 import sys
 
-from wellylassioqt.logloader_1 import (highres_well)
+from highres_code.hr_logloader_1 import (highres_well)
 from wellylassioqt.topsloader_2 import (top_load)
 
 import matplotlib.pyplot as plt
@@ -12,8 +12,8 @@ from matplotlib.backends.backend_qtagg import (
     )
 
 from PySide6.QtWidgets import (
-    QMainWindow, QVBoxLayout, QWidget, QApplication, QPushButton
-    )
+    QMainWindow, QVBoxLayout, QWidget, QApplication
+)
 
 
 # create the plot widget

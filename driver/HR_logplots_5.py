@@ -1,8 +1,8 @@
 import sys
 
-from wellylassioqt.logloader_1 import (highres_well)
+from highres_code.hr_logloader_1 import (highres_well)
 from wellylassioqt.topsloader_2 import (top_load)
-from wellylassioqt.assembly_3 import (organize_curves)
+from highres_code.hr_assembly_3 import (organize_curves)
 
 import matplotlib.pyplot as plt
 import pandas as pd

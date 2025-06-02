@@ -1,4 +1,4 @@
-from wellylassioqt.logloader_1 import (highres_well)
+from highres_code.hr_logloader_1 import (highres_well)
 
 def organize_curves():
     """
