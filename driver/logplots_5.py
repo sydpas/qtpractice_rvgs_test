@@ -13,30 +13,16 @@ from matplotlib.backends.backend_qtagg import (
     )
 
 from PySide6.QtWidgets import (
-    QMainWindow, QVBoxLayout, QWidget, QApplication, QPushButton
+    QMainWindow, QVBoxLayout, QWidget, QApplication
     )
 
-class WellLogPlotter(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Well Log Plotter")
-        self.setGeometry(100, 100, 1200, 800)
+class WellLogPlotter(FigureCanvas):
+    def __init__(self, parent=None):
+        self.fig, self.axes = plt.subplots(1, 1, figsize=(10, 14))
+        super().__init__(self.fig)
 
-        # central widget and layout
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        layout = QVBoxLayout(central_widget)
 
-        # matplotlib figure and canvas
-        self.fig, self.axes = plt.subplots(figsize=(12, 8))
-        self.canvas = FigureCanvas(self.fig)
-        layout.addWidget(self.canvas)
-
-        # matplotlib toolbar
-        self.toolbar = NavigationToolbar(self.canvas, self)
-        layout.addWidget(self.toolbar)
-
-        # Load data
+        # loading data
         self.df = None
         self.well_tops_list = None
         self.ax_list = None
@@ -46,11 +32,9 @@ class WellLogPlotter(QMainWindow):
         self.plotting_logs()
 
     def load_data(self):
-        # Use your Qt-compatible data loading functions here
         _, _, _, self.df = highres_well()
         self.well_tops_list = top_load()
         self.ax_list, self.col_list = organize_curves()
-
 
     def plotting_logs(self):
         columns, non_depth_curves, curve_unit_list, df = highres_well()
@@ -58,7 +42,7 @@ class WellLogPlotter(QMainWindow):
         ax_list, col_list = organize_curves()
 
         self.fig.clear()
-        self.axes = self.fig.subplots(1, columns, sharey = True)
+        self.axes = self.fig.subplots(1, len(ax_list), sharey = True)
 
         for i, (curves, ax) in enumerate(zip(ax_list, self.axes)):  # zip pairs up elements from 2 lists and brings them together
             ax = self.axes[i]
@@ -188,15 +172,35 @@ class WellLogPlotter(QMainWindow):
 
         plt.suptitle('100/15-06-013-18W4/00, KI EXPLORATION INC.',
                      fontsize=18, fontweight='bold',
-                     bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=2', alpha=0.8))
-
-        self.canvas.draw()
+                     bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=1', alpha=0.8))
 
 
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Well Log Plotter")
+        self.setGeometry(100, 100, 1200, 800)
+
+        self.canvas = WellLogPlotter(self)
+        self.toolbar = NavigationToolbar(self.canvas, self)
 
 
-if __name__ == "__main__":
+        layout = QVBoxLayout()
+        layout.addWidget(self.canvas)
+        layout.addWidget(self.toolbar)
+
+        # 'wrap' everything
+        container = QWidget()
+        container.setLayout(layout)
+        self.setCentralWidget(container)
+
+
+
+def main():
     app = QApplication(sys.argv)
-    window = WellLogPlotter()
+    window = MainWindow()
     window.show()
     sys.exit(app.exec())
+
+if __name__ == "__main__":
+    main()
