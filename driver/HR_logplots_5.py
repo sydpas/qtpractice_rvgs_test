@@ -36,7 +36,7 @@ class WellLogPlotter(FigureCanvas):
 
     def plotting_logs(self):
         """
-        This function plots the logs and the horizontal well.
+        This function plots the logs.
         """
         global current_ax
         columns, non_depth_curves, curve_unit_list, df, loc, comp = highres_well()
@@ -130,7 +130,9 @@ class WellLogPlotter(FigureCanvas):
                     bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.8', alpha=0.8))
 
     def plot_horizontal_well(self, horz_df):
-
+        """
+        This function creates a horizontal well overlay on top of the previous well logs.
+        """
         # create an overlay axis, will have to fix height + width
         self.overlay_ax = self.fig.add_axes([0.125, 0.109, 0.774, 0.77], sharey=None)  # l b width height
 
