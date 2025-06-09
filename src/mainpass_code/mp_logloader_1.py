@@ -40,5 +40,7 @@ def mainpass_well():
 
     loc = las.well.LOC.value if 'LOC' in las.well else None
     comp = las.well.COMP.value if 'COMP' in las.well else None
+    kb = las.params['EREF'].value if 'EREF' in las.params else None
+    # print(f'LAS KB value: {kb}')
 
-    return columns, non_depth_curves, curve_unit_list, df, loc, comp
+    return columns, non_depth_curves, curve_unit_list, df, loc, comp, kb

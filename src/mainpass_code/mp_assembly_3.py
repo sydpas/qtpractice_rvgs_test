@@ -9,7 +9,7 @@ def organize_curves():
     """
 
     # call necessary bg functions
-    _, non_depth_curves, _, _, _, _ = mainpass_well()
+    _, non_depth_curves, _, _, _, _, _ = mainpass_well()
 
     # # just for knowing the index of all curves
     # for i, curve in enumerate(non_depth_curves, start=0):
