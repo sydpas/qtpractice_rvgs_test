@@ -14,7 +14,7 @@ from matplotlib.backends.backend_qtagg import (
     )
 
 from PySide6.QtWidgets import (
-    QMainWindow, QVBoxLayout, QWidget, QApplication
+    QMainWindow, QVBoxLayout, QWidget, QApplication, QPushButton
     )
 
 class WellLogPlotter(FigureCanvas):
@@ -33,6 +33,7 @@ class WellLogPlotter(FigureCanvas):
         horz_df = horz_loader()
         self.plot_horizontal_well(horz_df)
 
+
     def plotting_logs(self):
         """
         This function plots the logs and the horizontal well.
@@ -45,16 +46,16 @@ class WellLogPlotter(FigureCanvas):
         self.fig.clear()
         self.axes = self.fig.subplots(1, len(ax_list), sharey = True, gridspec_kw={'width_ratios': [1, 2, 1, 2, 2]})
 
-        pos = self.axes[0].get_position()
-        print(f"for first axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
-        pos = self.axes[1].get_position()
-        print(f"for second axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
-        pos = self.axes[2].get_position()
-        print(f"for third axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
-        pos = self.axes[3].get_position()
-        print(f"for fourth axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
-        pos = self.axes[4].get_position()
-        print(f"for fifth axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
+        # pos = self.axes[0].get_position()
+        # print(f"for first axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
+        # pos = self.axes[1].get_position()
+        # print(f"for second axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
+        # pos = self.axes[2].get_position()
+        # print(f"for third axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
+        # pos = self.axes[3].get_position()
+        # print(f"for fourth axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
+        # pos = self.axes[4].get_position()
+        # print(f"for fifth axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
 
         shade_list = ['blue', 'green', 'orange']
         curve_counter = 0
@@ -104,11 +105,12 @@ class WellLogPlotter(FigureCanvas):
 
             # adjusting proper y limits and x limits
             ax.set_ylim(df['DEPTH'].min(), df['DEPTH'].max())
+            ax.set_ylabel('Depth (m) for the Well Logs')
             ax.invert_yaxis()
+
             ax.set_xlim(df[curves[0]].min(), df[curves[0]].max())
             if ax2:
                 ax2.set_xlim(df[curves[-1]].min(), df[curves[-1]].max())
-
             # removing x axis
             ax.set_xlabel('')
             if ax2:
@@ -121,7 +123,7 @@ class WellLogPlotter(FigureCanvas):
                 ax.legend(lines_1 + lines_2, labels_1 + labels_2, loc='lower left', fontsize=6)
                 ax2.get_legend().remove() if ax2.get_legend() else None
 
-            ax.grid(True, linestyle='-', alpha=0.3, linewidth=0.5)
+            ax.grid(True, linestyle='-', alpha=0.4, linewidth=0.5)
             ax.set_title(' and '.join(curves), fontsize=10)
 
         plt.suptitle(f'{loc}, {comp}', fontsize=16, fontweight='bold',
@@ -133,20 +135,29 @@ class WellLogPlotter(FigureCanvas):
         self.overlay_ax = self.fig.add_axes([0.125, 0.109, 0.774, 0.77], sharey=None)  # l b width height
 
         # make transparent background
-        self.overlay_ax.patch.set_alpha(0.8)
+        self.overlay_ax.patch.set_alpha(0)
 
-        self.overlay_ax.set_xlabel('')
-        self.overlay_ax.set_xticks([])
+        self.overlay_ax.set_xlabel('E-W Offset')
+        # self.overlay_ax.set_xticks([])
         self.overlay_ax.set_ylabel('')
         self.overlay_ax.set_yticks([])
 
-        ymin, ymax = horz_df['TVD'].min(), horz_df['TVD'].max()
+        # now to make sure the well spans the entire plot
+        ymin, ymax = horz_df['TVD'].min(), horz_df['TVD'].max() + 100
         self.overlay_ax.set_ylim(ymin, ymax)
         self.overlay_ax.invert_yaxis()
 
+        xmin, xmax = horz_df['EW'].min() - 50, horz_df['EW'].max()
+        # print(f'xmin: {xmin}, xmax: {xmax}')
+        self.overlay_ax.set_xlim(xmin, xmax)
+
+        # get rid of window outline
+        for spine in self.overlay_ax.spines.values():
+            spine.set_alpha(0)
+
         self.overlay_ax.scatter(
             horz_df['EW'], horz_df['TVD'],  # x, y
-            color='red', marker='o', s=20)
+            color='darkred', marker='.', s=20)
 
 
 class MainWindow(QMainWindow):
