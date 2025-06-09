@@ -11,7 +11,7 @@ def organize_curves():
     # call necessary bg functions
     _, non_depth_curves, _, _, _, _ = mainpass_well()
 
-    # just for knowing the index of all curves
+    # # just for knowing the index of all curves
     # for i, curve in enumerate(non_depth_curves, start=0):
     #     print(f'{i}: {curve}')
 
@@ -22,7 +22,7 @@ def organize_curves():
     col2 = len(ax2)
     ax3 = [non_depth_curves[2]]
     col3 = len(ax3)
-    ax4 = [non_depth_curves[8], non_depth_curves[7], non_depth_curves[2]]
+    ax4 = [non_depth_curves[8], non_depth_curves[7]]
     col4 = len(ax4)
     ax5 = [non_depth_curves[1]]
     col5 = len(ax5)
