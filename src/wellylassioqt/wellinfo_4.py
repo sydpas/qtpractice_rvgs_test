@@ -11,6 +11,7 @@ def horz_loader():
 
     df = pd.DataFrame({
         'EW': surv_1_7['EW Offset'],
+        'NS': surv_1_7['NS Offset'],
         'MD': surv_1_7['Measured Depth'],
         'TVD': surv_1_7['TVD']})
 

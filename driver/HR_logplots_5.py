@@ -30,10 +30,12 @@ class WellLogPlotter(FigureCanvas):
 
         self.plotting_logs()
 
+        horz_df = horz_loader()
+        self.plot_horizontal_well(horz_df)
 
     def plotting_logs(self):
         """
-        This function plots the logs.
+        This function plots the logs and the horizontal well.
         """
         global current_ax
         columns, non_depth_curves, curve_unit_list, df, loc, comp = highres_well()
@@ -42,6 +44,17 @@ class WellLogPlotter(FigureCanvas):
 
         self.fig.clear()
         self.axes = self.fig.subplots(1, len(ax_list), sharey = True, gridspec_kw={'width_ratios': [1, 2, 1, 2, 2]})
+
+        pos = self.axes[0].get_position()
+        print(f"for first axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
+        pos = self.axes[1].get_position()
+        print(f"for second axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
+        pos = self.axes[2].get_position()
+        print(f"for third axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
+        pos = self.axes[3].get_position()
+        print(f"for fourth axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
+        pos = self.axes[4].get_position()
+        print(f"for fifth axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
 
         shade_list = ['blue', 'green', 'orange']
         curve_counter = 0
@@ -114,16 +127,26 @@ class WellLogPlotter(FigureCanvas):
         plt.suptitle(f'{loc}, {comp}', fontsize=16, fontweight='bold',
                     bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.8', alpha=0.8))
 
-        # now we plot the horizonal well
-        horz_df = horz_loader()
+    def plot_horizontal_well(self, horz_df):
 
-        ax = self.axes[0]
+        # create an overlay axis, will have to fix height + width
+        self.overlay_ax = self.fig.add_axes([0.125, 0.109, 0.774, 0.77], sharey=None)  # l b width height
 
-        # we plot using TVD bc it goes from the KB to the point on the horizontal well
-        ax.plot(
-            horz_df['EW'], horz_df['TVD'], color='darkred', marker='o', markersize=3, linestyle='None',
-            label='Horizontal Well')
+        # make transparent background
+        self.overlay_ax.patch.set_alpha(0.8)
 
+        self.overlay_ax.set_xlabel('')
+        self.overlay_ax.set_xticks([])
+        self.overlay_ax.set_ylabel('')
+        self.overlay_ax.set_yticks([])
+
+        ymin, ymax = horz_df['TVD'].min(), horz_df['TVD'].max()
+        self.overlay_ax.set_ylim(ymin, ymax)
+        self.overlay_ax.invert_yaxis()
+
+        self.overlay_ax.scatter(
+            horz_df['EW'], horz_df['TVD'],  # x, y
+            color='red', marker='o', s=20)
 
 
 class MainWindow(QMainWindow):
