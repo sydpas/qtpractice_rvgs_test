@@ -138,9 +138,9 @@ class WellLogPlotter(FigureCanvas):
         self.overlay_ax.patch.set_alpha(0)
 
         self.overlay_ax.set_xlabel('E-W Offset')
-        # self.overlay_ax.set_xticks([])
-        # self.overlay_ax.set_ylabel('')
-        # self.overlay_ax.set_yticks([])
+        self.overlay_ax.set_xticks([])
+        self.overlay_ax.set_ylabel('')
+        self.overlay_ax.set_yticks([])
 
         # now to make sure the well spans the entire plot
         ymin, ymax = horz_df['SS'].min() - 100, horz_df['SS'].max() + 100
@@ -159,7 +159,7 @@ class WellLogPlotter(FigureCanvas):
             horz_df['EW'], horz_df['SS'],  # x, y
             color='darkred', marker='.', s=20, label='Horizontal Well')
 
-        self.overlay_ax.axhline(0, 0, 1, color='darkblue', lw=2, ls='--', alpha=0.5, label='Sea Level')
+        self.overlay_ax.axhline(0, 0, 1, color='darkblue', lw=1.5, ls='--', alpha=0.5, label='Sea Level')
 
         # find the point in the well that's closest to a chosen MD
         target_md = 910
