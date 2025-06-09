@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     )
 
 class WellLogPlotter(FigureCanvas):
-    def __init__(self, parent=None):
+    def __init__(self):
         self.fig, self.axes = plt.subplots(1, 1)
         super().__init__(self.fig)
 
@@ -32,14 +32,14 @@ class WellLogPlotter(FigureCanvas):
 
         horz_df = horz_loader()
         self.plot_horizontal_well(horz_df)
-
+        self.title_func()
 
     def plotting_logs(self):
         """
         This function plots the logs.
         """
         global current_ax
-        columns, non_depth_curves, curve_unit_list, df, loc, comp = highres_well()
+        columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = highres_well()
         well_tops_list = top_load()
         ax_list, col_list = organize_curves()
 
@@ -111,7 +111,7 @@ class WellLogPlotter(FigureCanvas):
             ax.set_xlim(df[curves[0]].min(), df[curves[0]].max())
             if ax2:
                 ax2.set_xlim(df[curves[-1]].min(), df[curves[-1]].max())
-            # removing x axis
+            # removing x-axis
             ax.set_xlabel('')
             if ax2:
                 ax2.set_xlabel('')
@@ -126,30 +126,28 @@ class WellLogPlotter(FigureCanvas):
             ax.grid(True, linestyle='-', alpha=0.4, linewidth=0.5)
             ax.set_title(' and '.join(curves), fontsize=10)
 
-        plt.suptitle(f'{loc}, {comp}', fontsize=16, fontweight='bold',
-                    bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.8', alpha=0.8))
-
     def plot_horizontal_well(self, horz_df):
         """
         This function creates a horizontal well overlay on top of the previous well logs.
         """
-        # create an overlay axis, will have to fix height + width
-        self.overlay_ax = self.fig.add_axes([0.125, 0.109, 0.774, 0.77], sharey=None)  # l b width height
+        # create an overlay axis, will have to fix width and height
+        self.overlay_ax = self.fig.add_axes((0.125, 0.109, 0.774, 0.77), sharey=None)  # l b width height
+        self.overlay_ax.set_navigate(False)
 
         # make transparent background
         self.overlay_ax.patch.set_alpha(0)
 
         self.overlay_ax.set_xlabel('E-W Offset')
         # self.overlay_ax.set_xticks([])
-        self.overlay_ax.set_ylabel('')
-        self.overlay_ax.set_yticks([])
+        # self.overlay_ax.set_ylabel('')
+        # self.overlay_ax.set_yticks([])
 
         # now to make sure the well spans the entire plot
-        ymin, ymax = horz_df['TVD'].min(), horz_df['TVD'].max() + 100
+        ymin, ymax = horz_df['SS'].min() - 100, horz_df['SS'].max() + 100
+        # print(f'ymin: {ymin}, ymax: {ymax}')
         self.overlay_ax.set_ylim(ymin, ymax)
-        self.overlay_ax.invert_yaxis()
 
-        xmin, xmax = horz_df['EW'].min() - 50, horz_df['EW'].max()
+        xmin, xmax = horz_df['EW'].min() - 100, horz_df['EW'].max() + 100
         # print(f'xmin: {xmin}, xmax: {xmax}')
         self.overlay_ax.set_xlim(xmin, xmax)
 
@@ -158,8 +156,30 @@ class WellLogPlotter(FigureCanvas):
             spine.set_alpha(0)
 
         self.overlay_ax.scatter(
-            horz_df['EW'], horz_df['TVD'],  # x, y
-            color='darkred', marker='.', s=20)
+            horz_df['EW'], horz_df['SS'],  # x, y
+            color='darkred', marker='.', s=20, label='Horizontal Well')
+
+        self.overlay_ax.axhline(0, 0, 1, color='darkblue', lw=2, ls='--', alpha=0.5, label='Sea Level')
+
+        # find the point in the well that's closest to a chosen MD
+        target_md = 910
+        # subtracts target from every MD val, take abs val, find index where val is small, take entire row (iloc)
+        closest_point = horz_df.iloc[(horz_df['MD'] - target_md).abs().idxmin()]
+
+        # plotting target point
+        self.overlay_ax.scatter(
+            closest_point['EW'], closest_point['SS'],
+            color='orange', edgecolors='red', marker='^', s=40, label='Target Point')
+
+        self.overlay_ax.legend(loc='upper right', fontsize=7)
+
+    def title_func(self):
+        columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = highres_well()
+        horz_df = horz_loader()
+
+        uwi_title = horz_df['UWI'][0]
+        plt.suptitle(f'Horizontal Well ({uwi_title}) on\n {loc} for {comp}', fontsize=12, fontweight='bold',
+                     bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.8', alpha=0.8))
 
 
 class MainWindow(QMainWindow):
@@ -168,7 +188,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Well Log Plotter")
         self.setGeometry(100, 100, 800, 1100)  # width, height
 
-        self.canvas = WellLogPlotter(self)
+        self.canvas = WellLogPlotter()
         self.toolbar = NavigationToolbar(self.canvas, self)
 
         layout = QVBoxLayout()

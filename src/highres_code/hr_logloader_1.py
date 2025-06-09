@@ -10,6 +10,9 @@ def highres_well():
          non_depth_curves: list of curves without depth.
          curve_unit_list: list of all curve units excluding depth.
          df: the LAS file converted to a pandas DataFrame.
+         loc: the UWI location of the well.
+         comp: the company that owns the well.
+         kb: the kelly bushing value.
     """
     las = lasio.read("../las_files/HighResolution_full_SelCrv.LAS")
 
@@ -39,5 +42,8 @@ def highres_well():
 
     loc = las.well.LOC.value if 'LOC' in las.well else None
     comp = las.well.COMP.value if 'COMP' in las.well else None
+    kb = las.params['EREF'].value if 'EREF' in las.params else None
 
-    return columns, non_depth_curves, curve_unit_list, df, loc, comp
+    print(f'KB value: {kb}')
+
+    return columns, non_depth_curves, curve_unit_list, df, loc, comp, kb

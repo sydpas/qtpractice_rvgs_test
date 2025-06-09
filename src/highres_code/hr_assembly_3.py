@@ -9,7 +9,7 @@ def organize_curves():
     """
 
     # call necessary bg functions
-    _, non_depth_curves, _, _, _, _ = highres_well()
+    _, non_depth_curves, _, _, _, _, _ = highres_well()
 
     # for i, curve in enumerate(non_depth_curves):
     #     print(f'Index {i}: {curve}')
