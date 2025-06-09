@@ -3,6 +3,7 @@ import sys
 from highres_code.hr_logloader_1 import (highres_well)
 from wellylassioqt.topsloader_2 import (top_load)
 from highres_code.hr_assembly_3 import (organize_curves)
+from wellylassioqt.wellinfo_4 import (horz_loader)
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -27,13 +28,8 @@ class WellLogPlotter(FigureCanvas):
         self.ax_list = None
         self.col_list = None
 
-        self.load_data()
         self.plotting_logs()
 
-    def load_data(self):
-        _, _, _, self.df, loc, comp = highres_well()
-        self.well_tops_list = top_load()
-        self.ax_list, self.col_list = organize_curves()
 
     def plotting_logs(self):
         """
@@ -47,12 +43,11 @@ class WellLogPlotter(FigureCanvas):
         self.fig.clear()
         self.axes = self.fig.subplots(1, len(ax_list), sharey = True, gridspec_kw={'width_ratios': [1, 2, 1, 2, 2]})
 
-        shade_list = ['blue', 'green', 'orange', 'purple', 'brown', 'indigo']
+        shade_list = ['blue', 'green', 'orange']
         curve_counter = 0
 
         for i, (curves, ax) in enumerate(zip(ax_list, self.axes)):  # zip pairs up elements from 2 lists and brings them together
             ax = self.axes[i]
-            unit = curve_unit_list[i+1]
             top = well_tops_list[0]
 
             print(f'Plotting curve: {curves}...')
@@ -72,7 +67,7 @@ class WellLogPlotter(FigureCanvas):
                 ax.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False, labeltop=False)
                 if i != 0:
                     ax.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
-
+                    ax2.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
 
                 if curve == 'GR':
                     df.plot(
@@ -86,7 +81,6 @@ class WellLogPlotter(FigureCanvas):
 
                     shade = shade_list[curve_counter % len(shade_list)]
                     curve_counter += 1
-
                     print(f'Shade for {curve}: {shade}')
 
                     next_ax = ax2 if j > 0 and ax2 else ax
@@ -97,6 +91,7 @@ class WellLogPlotter(FigureCanvas):
 
             # adjusting proper y limits and x limits
             ax.set_ylim(df['DEPTH'].min(), df['DEPTH'].max())
+            ax.invert_yaxis()
             ax.set_xlim(df[curves[0]].min(), df[curves[0]].max())
             if ax2:
                 ax2.set_xlim(df[curves[-1]].min(), df[curves[-1]].max())
@@ -119,12 +114,23 @@ class WellLogPlotter(FigureCanvas):
         plt.suptitle(f'{loc}, {comp}', fontsize=16, fontweight='bold',
                     bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.8', alpha=0.8))
 
+        # now we plot the horizonal well
+        horz_df = horz_loader()
+
+        ax = self.axes[0]
+
+        # we plot using TVD bc it goes from the KB to the point on the horizontal well
+        ax.plot(
+            horz_df['EW'], horz_df['TVD'], color='darkred', marker='o', markersize=3, linestyle='None',
+            label='Horizontal Well')
+
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Well Log Plotter")
-        self.setGeometry(100, 100, 700, 1200)
+        self.setGeometry(100, 100, 800, 1100)  # width, height
 
         self.canvas = WellLogPlotter(self)
         self.toolbar = NavigationToolbar(self.canvas, self)
