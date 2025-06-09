@@ -14,7 +14,7 @@ from matplotlib.backends.backend_qtagg import (
     )
 
 from PySide6.QtWidgets import (
-    QMainWindow, QVBoxLayout, QWidget, QApplication, QPushButton
+    QMainWindow, QVBoxLayout, QWidget, QApplication
     )
 
 class WellLogPlotter(FigureCanvas):
