@@ -138,9 +138,9 @@ class WellLogPlotter(FigureCanvas):
         self.overlay_ax.patch.set_alpha(0)
 
         self.overlay_ax.set_xlabel('E-W Offset')
-        self.overlay_ax.set_xticks([])
-        self.overlay_ax.set_ylabel('')
-        self.overlay_ax.set_yticks([])
+        # self.overlay_ax.set_xticks([])
+        # self.overlay_ax.set_ylabel('')
+        # self.overlay_ax.set_yticks([])
 
         # now to make sure the well spans the entire plot
         ymin, ymax = horz_df['SS'].min() - 100, horz_df['SS'].max() + 100
