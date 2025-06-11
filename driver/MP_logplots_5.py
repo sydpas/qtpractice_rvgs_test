@@ -52,6 +52,7 @@ class WellLogPlotter(FigureCanvas):
         columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
         well_tops_list = top_load()
         ax_list, col_list = organize_curves()
+        horz_df = horz_loader()
 
         self.fig.clear()
         self.axes = self.fig.subplots(1, len(ax_list), sharey = True, gridspec_kw={'width_ratios': [1, 2, 1, 2, 2]})
@@ -89,7 +90,6 @@ class WellLogPlotter(FigureCanvas):
             ax2.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False, labeltop=False)
 
             for j, curve in enumerate(curves):
-
                 ax.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False, labeltop=False)
                 if i != 0:
                     ax.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
@@ -117,6 +117,7 @@ class WellLogPlotter(FigureCanvas):
 
             # adjusting proper y limits and x limits
             ax.set_ylim(df['DEPTH'].min(), df['DEPTH'].max())
+            print(f"yaxis values (depth): {ax.get_ylim()}")
             ax.set_ylabel('Depth (m) for the Well Logs')
             ax.invert_yaxis()
 
@@ -157,13 +158,13 @@ class WellLogPlotter(FigureCanvas):
         self.overlay_ax.patch.set_alpha(0)
 
         self.overlay_ax.set_xlabel('E-W Offset')
-        # self.overlay_ax.set_xticks([])
-        # self.overlay_ax.set_ylabel('')
-        # self.overlay_ax.set_yticks([])
+        self.overlay_ax.set_xticks([])
+        self.overlay_ax.set_ylabel('')
+        self.overlay_ax.set_yticks([])
 
         # now to make sure the well spans the entire plot
         ymin, ymax = horz_df['SS'].min() - 100, horz_df['SS'].max() + 100
-        # print(f'ymin: {ymin}, ymax: {ymax}')
+        print(f'yaxis min (ss): {ymin}, max (ss): {ymax}')
         self.overlay_ax.set_ylim(ymin, ymax)
 
         xmin, xmax = horz_df['EW'].min() - 100, horz_df['EW'].max() + 100
