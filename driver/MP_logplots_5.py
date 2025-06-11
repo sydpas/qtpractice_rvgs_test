@@ -14,8 +14,9 @@ from matplotlib.backends.backend_qtagg import (
     )
 
 from PySide6.QtWidgets import (
-    QMainWindow, QVBoxLayout, QWidget, QApplication
+    QMainWindow, QVBoxLayout, QWidget, QApplication, QPushButton
     )
+
 
 class WellLogPlotter(FigureCanvas):
     def __init__(self):
@@ -28,11 +29,20 @@ class WellLogPlotter(FigureCanvas):
         self.ax_list = None
         self.col_list = None
 
+        # calling functions...
+
+        # for the tops
+        self.show_tops = True  # have tops on
+        self.tops_lines_list = []  # empty list to fill with tops
+
+        # plotting logs and tops
         self.plotting_logs()
 
+        # plotting horizontal well
         horz_df = horz_loader()
         self.plot_horizontal_well(horz_df)
         self.title_func()
+
 
     def plotting_logs(self):
         """
@@ -69,9 +79,11 @@ class WellLogPlotter(FigureCanvas):
             for horz, depth in top.items():
                 if pd.notna(depth):
                     y = float(depth)
-                    ax.axhline(y=y, color='red', lw=1.5, ls='-')  # tops
+                    line = ax.axhline(y=y, color='red', lw=1.5, ls='-')  # tops
+                    self.tops_lines_list.append(line) # add lines to the list
                     if i == 0:
-                        ax.text(x=-20, y=y, s=horz, color='red', fontsize=8, ha='center', va='center')  # top names
+                        top_name = ax.text(x=-20, y=y, s=horz, color='red', fontsize=8, ha='center', va='center')
+                        self.tops_lines_list.append(top_name)  # add top names to the list
 
             ax2 = ax.twiny()
             ax2.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False, labeltop=False)
@@ -126,6 +138,13 @@ class WellLogPlotter(FigureCanvas):
             ax.grid(True, linestyle='-', alpha=0.4, linewidth=0.5)
             ax.set_title(' and '.join(curves), fontsize=10)
 
+
+    def toggle_tops(self):
+        self.show_tops = not self.show_tops
+        for pair in self.tops_lines_list:
+            pair.set_visible(self.show_tops)
+        self.draw()
+
     def plot_horizontal_well(self, horz_df):
         """
         This function creates a horizontal well overlay on top of the previous well logs.
@@ -178,8 +197,8 @@ class WellLogPlotter(FigureCanvas):
         horz_df = horz_loader()
 
         uwi_title = horz_df['UWI'][0]
-        plt.suptitle(f'Horizontal Well ({uwi_title}) on\n {loc} for {comp}', fontsize=12, fontweight='bold',
-                     bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.8', alpha=0.8))
+        plt.suptitle(f'Horizontal Well ({uwi_title}) on\n {loc} for {comp}', fontsize=10, fontweight='bold',
+                     bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.6', alpha=0.8))
 
 
 class MainWindow(QMainWindow):
@@ -190,10 +209,20 @@ class MainWindow(QMainWindow):
 
         self.canvas = WellLogPlotter()
         self.toolbar = NavigationToolbar(self.canvas, self)
+        # for the tops
+        self.toggle_button = QPushButton('Toggle Tops')
+        self.toggle_button.clicked.connect(self.canvas.toggle_tops)
+
+        # styling the button
+        self.toggle_button.setStyleSheet("""QPushButton {background-color: green;
+        color: white;
+        font: bold 12px;
+        }""")
 
         layout = QVBoxLayout()
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
+        layout.addWidget(self.toggle_button)
 
         # 'wrap' everything
         container = QWidget()
