@@ -14,7 +14,7 @@ from matplotlib.backends.backend_qtagg import (
     )
 
 from PySide6.QtWidgets import (
-    QMainWindow, QVBoxLayout, QWidget, QApplication, QPushButton
+    QMainWindow, QVBoxLayout, QWidget, QApplication, QToolButton
     )
 
 
@@ -31,7 +31,7 @@ class WellLogPlotter(FigureCanvas):
 
         # calling functions...
 
-        # for the tops
+        # for the tops button
         self.show_tops = True  # have tops on
         self.tops_lines_list = []  # empty list to fill with tops
 
@@ -52,7 +52,6 @@ class WellLogPlotter(FigureCanvas):
         columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
         well_tops_list = top_load()
         ax_list, col_list = organize_curves()
-        horz_df = horz_loader()
 
         self.fig.clear()
         self.axes = self.fig.subplots(1, len(ax_list), sharey = True, gridspec_kw={'width_ratios': [1, 2, 1, 2, 2]})
@@ -210,20 +209,38 @@ class MainWindow(QMainWindow):
 
         self.canvas = WellLogPlotter()
         self.toolbar = NavigationToolbar(self.canvas, self)
-        # for the tops
-        self.toggle_button = QPushButton('Toggle Tops')
-        self.toggle_button.clicked.connect(self.canvas.toggle_tops)
 
+        # for the tops
+        self.toggle_button = QToolButton()
+        self.toggle_button.setText('Toggle Tops')
+        self.toggle_button.clicked.connect(self.canvas.toggle_tops)
+        self.toggle_button.setAutoRaise(False)
         # styling the button
-        self.toggle_button.setStyleSheet("""QPushButton {background-color: green;
-        color: white;
-        font: bold 12px;
-        }""")
+        self.toggle_button.setStyleSheet("""
+        QToolButton {
+            background-color: green;
+            color: white;
+            font: bold 12px;
+            border: 2px dark green;
+            border-radius: 4px;
+            padding: 4px;
+        }
+
+        QToolButton:hover {
+            background-color: darkgreen;
+            color: white;
+            font: bold 12px;
+            border: 2px solid green;
+            border-radius: 4px;
+            padding: 4px;
+
+        }
+        """)
 
         layout = QVBoxLayout()
         layout.addWidget(self.toolbar)
+        self.toolbar.addWidget(self.toggle_button)  # to put button beside toolbar
         layout.addWidget(self.canvas)
-        layout.addWidget(self.toggle_button)
 
         # 'wrap' everything
         container = QWidget()
