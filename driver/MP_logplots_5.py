@@ -35,6 +35,12 @@ class WellLogPlotter(FigureCanvas):
         self.show_tops = True  # have tops on
         self.tops_lines_list = []  # empty list to fill with tops
 
+        # for the scale button
+        self.show_scale_bar = True
+        self.horz_lines_list = []
+        self.vert_lines_list = []
+        self.text_lines_list = []
+
         # plotting logs and tops
         self.plotting_logs()
 
@@ -42,7 +48,8 @@ class WellLogPlotter(FigureCanvas):
         self.plot_horizontal_well()
 
         self.title_func()
-        self.scale_bar()
+        self.scale_bar_md()
+        # self.scale_bar()
 
 
     def plotting_logs(self):
@@ -203,20 +210,9 @@ class WellLogPlotter(FigureCanvas):
         plt.suptitle(f'Horizontal Well ({uwi_title}) on\n {loc} for {comp}\n +{kb:.2f}m', fontsize=8, fontweight='bold',
                      bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.6', alpha=0.8))
 
-    def scale_bar(self):
-        columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
+
+    def scale_bar_md(self):
         horz_df = horz_loader()
-
-        d_ymin, d_ymax = df['DEPTH'].min(), df['DEPTH'].max()
-        d_diff = d_ymax - d_ymin
-
-        s_ymin, s_ymax = horz_df['SS'].min(), horz_df['SS'].max()
-        s_diff = s_ymax - s_ymin
-
-        print(f'yaxis min (depth): {d_ymin}, max (depth): {d_ymax}')
-        print(f'yaxis min (ss): {s_ymin}, max (ss): {s_ymax}')
-        print(f'depth difference: {d_diff} meters')
-        print(f'subsea difference: {s_diff} meters')
 
         # creating a new overlay for the scale bar
         self.overlay_ax = self.fig.add_axes((0.125, 0.109, 0.774, 0.77), sharey = None)  # l b width height
@@ -234,35 +230,92 @@ class WellLogPlotter(FigureCanvas):
         for spine in self.overlay_ax.spines.values():
             spine.set_alpha(0)
 
-        self.overlay_ax.set_xlim(0, horz_df['SS'].max())
+        self.overlay_ax.set_xlim(0, horz_df['MD'].max())
 
-        self.overlay_ax.axhline(y=0.5, xmin=0, xmax=1, color='black', linewidth = 2)  # horz line
-        self.overlay_ax.axvline(0, 0.49, 0.51, color='black', linewidth = 3)
+        self.horz_lines_list.append(self.overlay_ax.axhline(y=0.5, xmin=0, xmax=1, color='black', linewidth = 2))
+        self.vert_lines_list.append(self.overlay_ax.axvline(0, 0.49, 0.51, color='black', linewidth = 3))
 
-        ratio_scale = 1
-        print('beginning while loop...')
-        while (ratio_scale + 100) <= horz_df['SS'].max():
-            print(f'ratio scale: {ratio_scale}')
+        count = 0
+        while count <= horz_df['MD'].max():
+            self.vert_lines_list.append(self.overlay_ax.axvline(count, 0.49, 0.51, color='purple', linewidth=2))
+            self.text_lines_list.append(self.overlay_ax.text(count, 0.49, f'{count} m',
+                                                        va='top', ha='center', color='purple'))
 
-            math_d_div_ss = (d_diff * ratio_scale) / s_diff
-            decimal = math_d_div_ss % 1
-            scale_length = math_d_div_ss - decimal
-            print(f'scale length: {scale_length} meters')
+            count += 500
 
-            print(f'subsea to depth ratio: {ratio_scale}:{scale_length} meters')
+        self.vert_lines_list.append(self.overlay_ax.axvline(horz_df['MD'].max(), 0.49, 0.51,
+                                                       color='black', linewidth = 3))
+        self.text_lines_list.append(self.overlay_ax.text(horz_df['MD'].max() + 10, 0.49, f'{horz_df['MD'].max()} m'))
 
+        self.text_lines_list.append(self.overlay_ax.text(horz_df['MD'].max() + 10, 0.53, 'MD'))
 
-            # self.overlay_ax.axvline(ratio_scale, 0.49, 0.51, color='purple', linewidth = 2)
-            # self.overlay_ax.text(ratio_scale, 0.51, f'{ratio_scale} m', va='bottom', ha='center', color='purple')
+    def toggle_scale_bar(self):
+        self.show_scale_bar = not self.show_scale_bar
+        for i in [self.vert_lines_list, self.horz_lines_list, self.text_lines_list]:
+            for j in i:
+                j.set_visible(self.show_scale_bar)
+        self.draw()
 
-            self.overlay_ax.axvline(scale_length, 0.49, 0.51, color='brown', linewidth = 2)
-            self.overlay_ax.text(scale_length, 0.49, f'{scale_length} m', va='top', ha='center', color='brown')
-
-            ratio_scale = ratio_scale + 100
-            print(f'updated ratio scale: {ratio_scale} meters')
-
-        self.overlay_ax.axvline(horz_df['SS'].max(), 0.49, 0.51, color='black', linewidth = 3)
-        self.overlay_ax.text(horz_df['SS'].max() + 10, 0.49, f'{horz_df['SS'].max()} m')
+    # def scale_bar(self):
+    #     columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
+    #     horz_df = horz_loader()
+    #
+    #     d_ymin, d_ymax = df['DEPTH'].min(), df['DEPTH'].max()
+    #     d_diff = d_ymax - d_ymin
+    #
+    #     s_ymin, s_ymax = horz_df['SS'].min(), horz_df['SS'].max()
+    #     s_diff = s_ymax - s_ymin
+    #
+    #     print(f'yaxis min (depth): {d_ymin}, max (depth): {d_ymax}')
+    #     print(f'yaxis min (ss): {s_ymin}, max (ss): {s_ymax}')
+    #     print(f'depth difference: {d_diff} meters')
+    #     print(f'subsea difference: {s_diff} meters')
+    #
+    #     # creating a new overlay for the scale bar
+    #     self.overlay_ax = self.fig.add_axes((0.125, 0.109, 0.774, 0.77), sharey = None)  # l b width height
+    #     self.overlay_ax.set_navigate(False)
+    #
+    #     # make transparent background
+    #     self.overlay_ax.patch.set_alpha(0)
+    #
+    #     self.overlay_ax.set_xlabel('')
+    #     self.overlay_ax.set_xticks([])
+    #     self.overlay_ax.set_ylabel('')
+    #     self.overlay_ax.set_yticks([])
+    #
+    #     # get rid of window outline
+    #     for spine in self.overlay_ax.spines.values():
+    #         spine.set_alpha(0)
+    #
+    #     self.overlay_ax.set_xlim(0, horz_df['MD'].max())
+    #
+    #     self.overlay_ax.axhline(y=0.5, xmin=0, xmax=1, color='black', linewidth = 2)  # horz line
+    #     self.overlay_ax.axvline(0, 0.49, 0.51, color='black', linewidth = 3)
+    #
+    #     ratio_scale = 1
+    #     print('beginning while loop...')
+    #     while (ratio_scale + 100) <= horz_df['SS'].max():
+    #         print(f'ratio scale: {ratio_scale}')
+    #
+    #         math_d_div_ss = (d_diff * ratio_scale) / s_diff
+    #         decimal = math_d_div_ss % 1
+    #         scale_length = math_d_div_ss - decimal
+    #         print(f'scale length: {scale_length} meters')
+    #
+    #         print(f'subsea to depth ratio: {ratio_scale}:{scale_length} meters')
+    #
+    #
+    #         # self.overlay_ax.axvline(ratio_scale, 0.49, 0.51, color='purple', linewidth = 2)
+    #         # self.overlay_ax.text(ratio_scale, 0.51, f'{ratio_scale} m', va='bottom', ha='center', color='purple')
+    #
+    #         self.overlay_ax.axvline(scale_length, 0.49, 0.51, color='brown', linewidth = 2)
+    #         self.overlay_ax.text(scale_length, 0.49, f'{scale_length} m', va='top', ha='center', color='brown')
+    #
+    #         ratio_scale = ratio_scale + 100
+    #         print(f'updated ratio scale: {ratio_scale} meters')
+    #
+    #     self.overlay_ax.axvline(horz_df['SS'].max(), 0.49, 0.51, color='black', linewidth = 3)
+    #     self.overlay_ax.text(horz_df['SS'].max() + 10, 0.49, f'{horz_df['SS'].max()} m')
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -281,19 +334,46 @@ class MainWindow(QMainWindow):
         # styling the button
         self.toggle_button.setStyleSheet("""
         QToolButton {
-            background-color: green;
+            background-color: red;
             color: white;
             font: bold 12px;
-            border: 2px dark green;
+            border: 2px dark red;
             border-radius: 4px;
             padding: 4px;
         }
 
         QToolButton:hover {
-            background-color: darkgreen;
+            background-color: black;
             color: white;
             font: bold 12px;
-            border: 2px solid green;
+            border: 2px solid red;
+            border-radius: 4px;
+            padding: 4px;
+
+        }
+        """)
+
+        # for the scale bar
+        self.toggle_button_b = QToolButton()
+        self.toggle_button_b.setText('Toggle Scale Bar')
+        self.toggle_button_b.clicked.connect(self.canvas.toggle_scale_bar)
+        self.toggle_button_b.setAutoRaise(False)
+        # styling the button
+        self.toggle_button_b.setStyleSheet("""
+        QToolButton {
+            background-color: purple;
+            color: white;
+            font: bold 12px;
+            border: 2px dark purple;
+            border-radius: 4px;
+            padding: 4px;
+        }
+
+        QToolButton:hover {
+            background-color: black;
+            color: white;
+            font: bold 12px;
+            border: 2px solid purple;
             border-radius: 4px;
             padding: 4px;
 
@@ -303,6 +383,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout()
         layout.addWidget(self.toolbar)
         self.toolbar.addWidget(self.toggle_button)  # to put button beside toolbar
+        self.toolbar.addWidget(self.toggle_button_b)
         layout.addWidget(self.canvas)
 
         # 'wrap' everything
