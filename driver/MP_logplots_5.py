@@ -39,9 +39,10 @@ class WellLogPlotter(FigureCanvas):
         self.plotting_logs()
 
         # plotting horizontal well
-        horz_df = horz_loader()
-        self.plot_horizontal_well(horz_df)
+        self.plot_horizontal_well()
+
         self.title_func()
+        self.scale_bar()
 
 
     def plotting_logs(self):
@@ -97,7 +98,7 @@ class WellLogPlotter(FigureCanvas):
                 if curve == 'GR':
                     df.plot(
                         x=curve, y='DEPTH', color='black', ax=ax,
-                        linewidth=0.5, marker='o', markersize=0.2, alpha=0.5, label='GR')
+                        linewidth=0.5, marker='o', markersize=0.1, alpha=0.3, label='GR')
                     ax.fill_betweenx(df['DEPTH'], df[curve], 75, facecolor='yellow', alpha=0.5)
                     ax.fill_betweenx(df['DEPTH'], df[curve], 0, facecolor='white')
                     ax.axvline(75, color='black', linewidth=0.5, alpha=0.5)
@@ -111,12 +112,12 @@ class WellLogPlotter(FigureCanvas):
                     next_ax = ax2 if j > 0 and ax2 else ax
 
                     df.plot(
-                        x=curve, y='DEPTH', color=shade, ax=next_ax, label=curve,
-                        linewidth=0.5, marker='o', markersize=0.2, alpha=0.5)
+                        x=curve, y='DEPTH', color=shade, ax=next_ax,
+                        linewidth=0.5, marker='o', markersize=0.1, alpha=0.3, label=curve)
 
             # adjusting proper y limits and x limits
             ax.set_ylim(df['DEPTH'].min(), df['DEPTH'].max())
-            print(f"yaxis values (depth): {ax.get_ylim()}")
+            # print(f"yaxis values (depth): {ax.get_ylim()}")
             ax.set_ylabel('Depth (m) for the Well Logs')
             ax.invert_yaxis()
 
@@ -145,10 +146,12 @@ class WellLogPlotter(FigureCanvas):
             pair.set_visible(self.show_tops)
         self.draw()
 
-    def plot_horizontal_well(self, horz_df):
+    def plot_horizontal_well(self):
         """
         This function creates a horizontal well overlay on top of the previous well logs.
         """
+        horz_df = horz_loader()
+
         # create an overlay axis, will have to fix width and height
         self.overlay_ax = self.fig.add_axes((0.125, 0.109, 0.774, 0.77), sharey=None)  # l b width height
         self.overlay_ax.set_navigate(False)
@@ -163,7 +166,7 @@ class WellLogPlotter(FigureCanvas):
 
         # now to make sure the well spans the entire plot
         ymin, ymax = horz_df['SS'].min() - 100, horz_df['SS'].max() + 100
-        print(f'yaxis min (ss): {ymin}, max (ss): {ymax}')
+        # print(f'yaxis min (ss): {ymin}, max (ss): {ymax}')
         self.overlay_ax.set_ylim(ymin, ymax)
 
         xmin, xmax = horz_df['EW'].min() - 100, horz_df['EW'].max() + 100
@@ -197,9 +200,69 @@ class WellLogPlotter(FigureCanvas):
         horz_df = horz_loader()
 
         uwi_title = horz_df['UWI'][0]
-        plt.suptitle(f'Horizontal Well ({uwi_title}) on\n {loc} for {comp}', fontsize=10, fontweight='bold',
+        plt.suptitle(f'Horizontal Well ({uwi_title}) on\n {loc} for {comp}\n +{kb:.2f}m', fontsize=8, fontweight='bold',
                      bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.6', alpha=0.8))
 
+    def scale_bar(self):
+        columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
+        horz_df = horz_loader()
+
+        d_ymin, d_ymax = df['DEPTH'].min(), df['DEPTH'].max()
+        d_diff = d_ymax - d_ymin
+
+        s_ymin, s_ymax = horz_df['SS'].min(), horz_df['SS'].max()
+        s_diff = s_ymax - s_ymin
+
+        print(f'yaxis min (depth): {d_ymin}, max (depth): {d_ymax}')
+        print(f'yaxis min (ss): {s_ymin}, max (ss): {s_ymax}')
+        print(f'depth difference: {d_diff} meters')
+        print(f'subsea difference: {s_diff} meters')
+
+        # creating a new overlay for the scale bar
+        self.overlay_ax = self.fig.add_axes((0.125, 0.109, 0.774, 0.77), sharey = None)  # l b width height
+        self.overlay_ax.set_navigate(False)
+
+        # make transparent background
+        self.overlay_ax.patch.set_alpha(0)
+
+        self.overlay_ax.set_xlabel('')
+        self.overlay_ax.set_xticks([])
+        self.overlay_ax.set_ylabel('')
+        self.overlay_ax.set_yticks([])
+
+        # get rid of window outline
+        for spine in self.overlay_ax.spines.values():
+            spine.set_alpha(0)
+
+        self.overlay_ax.set_xlim(0, horz_df['SS'].max())
+
+        self.overlay_ax.axhline(y=0.5, xmin=0, xmax=1, color='black', linewidth = 2)  # horz line
+        self.overlay_ax.axvline(0, 0.49, 0.51, color='black', linewidth = 3)
+
+        ratio_scale = 1
+        print('beginning while loop...')
+        while (ratio_scale + 100) <= horz_df['SS'].max():
+            print(f'ratio scale: {ratio_scale}')
+
+            math_d_div_ss = (d_diff * ratio_scale) / s_diff
+            decimal = math_d_div_ss % 1
+            scale_length = math_d_div_ss - decimal
+            print(f'scale length: {scale_length} meters')
+
+            print(f'subsea to depth ratio: {ratio_scale}:{scale_length} meters')
+
+
+            # self.overlay_ax.axvline(ratio_scale, 0.49, 0.51, color='purple', linewidth = 2)
+            # self.overlay_ax.text(ratio_scale, 0.51, f'{ratio_scale} m', va='bottom', ha='center', color='purple')
+
+            self.overlay_ax.axvline(scale_length, 0.49, 0.51, color='brown', linewidth = 2)
+            self.overlay_ax.text(scale_length, 0.49, f'{scale_length} m', va='top', ha='center', color='brown')
+
+            ratio_scale = ratio_scale + 100
+            print(f'updated ratio scale: {ratio_scale} meters')
+
+        self.overlay_ax.axvline(horz_df['SS'].max(), 0.49, 0.51, color='black', linewidth = 3)
+        self.overlay_ax.text(horz_df['SS'].max() + 10, 0.49, f'{horz_df['SS'].max()} m')
 
 class MainWindow(QMainWindow):
     def __init__(self):
