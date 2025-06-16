@@ -1,4 +1,6 @@
 import pandas as pd
+from mainpass_code.mp_logloader_1 import (mainpass_well)
+
 
 
 def top_load():
@@ -8,16 +10,28 @@ def top_load():
     Return:
         well_tops_list: list of all well tops from a CSV file.
     """
+    _, _, _, _, _, _, kb = mainpass_well()
     well_tops = pd.read_csv('../csv_files/1506tops.csv')
 
     # print(well_tops.head())
 
     well_tops_list = []
-    for _, row in well_tops.iterrows():  # iterrows is pandas
-        tops = {column: row[column] for column in well_tops.columns
-                if pd.notna(row[column]) and column != 'UWI'}  # notna skips NaN
+    for _, row in well_tops.iterrows():
+        tops = {}  # creating a dictionary
+        for column in well_tops.columns:
+            if column == 'UWI':
+                continue  # skip non-depth columns
+
+            val = row[column]  # get depth value from current row and column
+            if pd.notna(val):
+                # Convert depth to subsea by subtracting kb
+                ss_val = val - kb
+                tops[column] = ss_val  # save ss in tops dict w column name as key
+
         well_tops_list.append(tops)
 
-    # print(f'well tops list: {well_tops_list}')
+    print(f'well tops list: {well_tops_list}')
 
     return well_tops_list
+
+
