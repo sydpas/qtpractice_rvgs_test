@@ -25,7 +25,7 @@ def top_load():
             val = row[column]  # get depth value from current row and column
             if pd.notna(val):
                 # Convert depth to subsea by subtracting kb
-                ss_val = val - kb
+                ss_val = kb - val
                 tops[column] = ss_val  # save ss in tops dict w column name as key
 
         well_tops_list.append(tops)

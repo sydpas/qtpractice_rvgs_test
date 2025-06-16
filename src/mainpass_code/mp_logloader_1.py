@@ -44,7 +44,7 @@ def mainpass_well():
     # print(f'LAS KB value: {kb}')
 
     # depth to ss
-    df['SUBSEA'] = df['DEPTH'] - 824
+    df['SUBSEA'] = 824 - df['DEPTH']
     df[['DEPTH', 'SUBSEA']].reset_index()  # turns depth into normal column
 
     return columns, non_depth_curves, curve_unit_list, df, loc, comp, kb

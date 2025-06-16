@@ -124,7 +124,7 @@ class WellLogPlotter(FigureCanvas):
                 ax.set_ylabel('Subsea for Logs (m)', color='darkred')
                 ax.tick_params(axis='y', colors='darkred')
 
-            ax.invert_yaxis()
+            # ax.invert_yaxis()
 
             # ... and x limits
             ax.set_xlim(df[curves[0]].min(), df[curves[0]].max())
@@ -160,7 +160,7 @@ class WellLogPlotter(FigureCanvas):
         horz_df = horz_loader()
 
         # create an overlay axis, will have to fix width and height
-        self.horz_well_axes = self.fig.add_axes((0.125, 0.109, 0.774, 0.77), sharey=None)  # l b width height
+        self.horz_well_axes = self.fig.add_axes((0.125, 0.109, 0.774, 0.77), sharey=self.axes[0])  # l b width height
         self.horz_well_axes.set_navigate(False)
 
         # make transparent background
@@ -190,7 +190,7 @@ class WellLogPlotter(FigureCanvas):
         self.horz_well_axes.set_ylim(ymin, ymax)
 
         xmin, xmax = horz_df['EW'].min(), horz_df['EW'].max()
-        # print(f'xmin: {xmin}, xmax: {xmax}')
+        print(f'xmin for EW: {xmin}, xmax for EW: {xmax}')
         self.horz_well_axes.set_xlim(xmin, xmax)
 
         self.horz_well_axes.scatter(
@@ -210,6 +210,7 @@ class WellLogPlotter(FigureCanvas):
             color='orange', edgecolors='brown', marker='X', s=40, label='Target Point')
 
         self.horz_well_axes.legend(loc='upper right', fontsize=7)
+
 
     def title_func(self):
         columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
