@@ -63,6 +63,7 @@ class WellLogPlotter(FigureCanvas):
 
         self.fig.clear()
         self.axes = self.fig.subplots(1, len(ax_list), sharey = True, gridspec_kw={'width_ratios': [1, 2, 1, 2, 2]})
+        # subplots: gridbased, good for shared axes
 
         # pos = self.axes[0].get_position()
         # print(f"for first axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
@@ -160,35 +161,35 @@ class WellLogPlotter(FigureCanvas):
         horz_df = horz_loader()
 
         # create an overlay axis, will have to fix width and height
-        self.overlay_ax = self.fig.add_axes((0.125, 0.109, 0.774, 0.77), sharey=None)  # l b width height
-        self.overlay_ax.set_navigate(False)
+        self.horz_well_axes = self.fig.add_axes((0.125, 0.109, 0.774, 0.77), sharey=None)  # l b width height
+        self.horz_well_axes.set_navigate(False)
 
         # make transparent background
-        self.overlay_ax.patch.set_alpha(0)
+        self.horz_well_axes.patch.set_alpha(0)
 
-        self.overlay_ax.set_xlabel('E-W Offset')
-        self.overlay_ax.set_xticks([])
-        self.overlay_ax.set_ylabel('')
-        self.overlay_ax.set_yticks([])
+        self.horz_well_axes.set_xlabel('E-W Offset')
+        self.horz_well_axes.set_xticks([])
+        self.horz_well_axes.set_ylabel('')
+        self.horz_well_axes.set_yticks([])
 
         # now to make sure the well spans the entire plot
         ymin, ymax = horz_df['SS'].min() - 100, horz_df['SS'].max() + 100
         # print(f'yaxis min (ss): {ymin}, max (ss): {ymax}')
-        self.overlay_ax.set_ylim(ymin, ymax)
+        self.horz_well_axes.set_ylim(ymin, ymax)
 
         xmin, xmax = horz_df['EW'].min() - 100, horz_df['EW'].max() + 100
         # print(f'xmin: {xmin}, xmax: {xmax}')
-        self.overlay_ax.set_xlim(xmin, xmax)
+        self.horz_well_axes.set_xlim(xmin, xmax)
 
         # get rid of window outline
-        for spine in self.overlay_ax.spines.values():
+        for spine in self.horz_well_axes.spines.values():
             spine.set_alpha(0)
 
-        self.overlay_ax.scatter(
+        self.horz_well_axes.scatter(
             horz_df['EW'], horz_df['SS'],  # x, y
             color='darkred', marker='.', s=20, label='Horizontal Well')
 
-        self.overlay_ax.axhline(0, 0, 1, color='darkblue', lw=1.5, ls='--', alpha=0.5, label='Sea Level')
+        self.horz_well_axes.axhline(0, 0, 1, color='darkblue', lw=1.5, ls='--', alpha=0.5, label='Sea Level')
 
         # find the point in the well that's closest to a chosen MD
         target_md = 2000
@@ -196,11 +197,11 @@ class WellLogPlotter(FigureCanvas):
         closest_point = horz_df.iloc[(horz_df['MD'] - target_md).abs().idxmin()]
 
         # plotting target point
-        self.overlay_ax.scatter(
+        self.horz_well_axes.scatter(
             closest_point['EW'], closest_point['SS'],
             color='orange', edgecolors='red', marker='^', s=40, label='Target Point')
 
-        self.overlay_ax.legend(loc='upper right', fontsize=7)
+        self.horz_well_axes.legend(loc='upper right', fontsize=7)
 
     def title_func(self):
         columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
@@ -218,39 +219,40 @@ class WellLogPlotter(FigureCanvas):
         horz_df = horz_loader()
 
         # creating a new overlay for the scale bar
-        self.overlay_ax = self.fig.add_axes((0.125, 0.109, 0.774, 0.77), sharey = None)  # l b width height
-        self.overlay_ax.set_navigate(False)
+        self.scale_bar_axes = self.fig.add_axes((0.125, 0.109, 0.774, 0.77), sharey=None)  # l b width height
+        # add_axes: good for manual locations
+        self.scale_bar_axes.set_navigate(False)
 
         # make transparent background
-        self.overlay_ax.patch.set_alpha(0)
+        self.scale_bar_axes.patch.set_alpha(0)
 
-        self.overlay_ax.set_xlabel('')
-        self.overlay_ax.set_xticks([])
-        self.overlay_ax.set_ylabel('')
-        self.overlay_ax.set_yticks([])
+        self.scale_bar_axes.set_xlabel('')
+        self.scale_bar_axes.set_xticks([])
+        self.scale_bar_axes.set_ylabel('')
+        self.scale_bar_axes.set_yticks([])
 
         # get rid of window outline
-        for spine in self.overlay_ax.spines.values():
+        for spine in self.scale_bar_axes.spines.values():
             spine.set_alpha(0)
 
-        self.overlay_ax.set_xlim(0, horz_df['MD'].max())
+        self.scale_bar_axes.set_xlim(0, horz_df['MD'].max())
 
-        self.horz_lines_list.append(self.overlay_ax.axhline(y=0.5, xmin=0, xmax=1, color='black', linewidth = 2))
-        self.vert_lines_list.append(self.overlay_ax.axvline(0, 0.49, 0.51, color='black', linewidth = 3))
+        self.horz_lines_list.append(self.scale_bar_axes.axhline(y=0.5, xmin=0, xmax=1, color='black', linewidth = 2))
+        self.vert_lines_list.append(self.scale_bar_axes.axvline(0, 0.49, 0.51, color='black', linewidth = 3))
 
         count = 0
         while count <= horz_df['MD'].max():
-            self.vert_lines_list.append(self.overlay_ax.axvline(count, 0.49, 0.51, color='purple', linewidth=2))
-            self.text_lines_list.append(self.overlay_ax.text(count, 0.49, f'{count} m',
+            self.vert_lines_list.append(self.scale_bar_axes.axvline(count, 0.49, 0.51, color='purple', linewidth=2))
+            self.text_lines_list.append(self.scale_bar_axes.text(count, 0.49, f'{count} m',
                                                         va='top', ha='center', color='purple'))
 
             count += 500
 
-        self.vert_lines_list.append(self.overlay_ax.axvline(horz_df['MD'].max(), 0.49, 0.51,
+        self.vert_lines_list.append(self.scale_bar_axes.axvline(horz_df['MD'].max(), 0.49, 0.51,
                                                        color='black', linewidth = 3))
-        self.text_lines_list.append(self.overlay_ax.text(horz_df['MD'].max() + 10, 0.49, f'{horz_df['MD'].max()} m'))
+        self.text_lines_list.append(self.scale_bar_axes.text(horz_df['MD'].max() + 10, 0.49, f'{horz_df['MD'].max()} m'))
 
-        self.text_lines_list.append(self.overlay_ax.text(horz_df['MD'].max() + 10, 0.53, 'MD'))
+        self.text_lines_list.append(self.scale_bar_axes.text(horz_df['MD'].max() + 10, 0.53, 'MD'))
 
     def toggle_scale_bar(self):
         self.show_scale_bar = not self.show_scale_bar
@@ -275,25 +277,25 @@ class WellLogPlotter(FigureCanvas):
     #     print(f'subsea difference: {s_diff} meters')
     #
     #     # creating a new overlay for the scale bar
-    #     self.overlay_ax = self.fig.add_axes((0.125, 0.109, 0.774, 0.77), sharey = None)  # l b width height
-    #     self.overlay_ax.set_navigate(False)
+    #     self.scale_bar_axes = self.fig.add_axes((0.125, 0.109, 0.774, 0.77), sharey = None)  # l b width height
+    #     self.scale_bar_axes.set_navigate(False)
     #
     #     # make transparent background
-    #     self.overlay_ax.patch.set_alpha(0)
+    #     self.scale_bar_axes.patch.set_alpha(0)
     #
-    #     self.overlay_ax.set_xlabel('')
-    #     self.overlay_ax.set_xticks([])
-    #     self.overlay_ax.set_ylabel('')
-    #     self.overlay_ax.set_yticks([])
+    #     self.scale_bar_axes.set_xlabel('')
+    #     self.scale_bar_axes.set_xticks([])
+    #     self.scale_bar_axes.set_ylabel('')
+    #     self.scale_bar_axes.set_yticks([])
     #
     #     # get rid of window outline
-    #     for spine in self.overlay_ax.spines.values():
+    #     for spine in self.scale_bar_axes.spines.values():
     #         spine.set_alpha(0)
     #
-    #     self.overlay_ax.set_xlim(0, horz_df['MD'].max())
+    #     self.scale_bar_axes.set_xlim(0, horz_df['MD'].max())
     #
-    #     self.overlay_ax.axhline(y=0.5, xmin=0, xmax=1, color='black', linewidth = 2)  # horz line
-    #     self.overlay_ax.axvline(0, 0.49, 0.51, color='black', linewidth = 3)
+    #     self.scale_bar_axes.axhline(y=0.5, xmin=0, xmax=1, color='black', linewidth = 2)  # horz line
+    #     self.scale_bar_axes.axvline(0, 0.49, 0.51, color='black', linewidth = 3)
     #
     #     ratio_scale = 1
     #     print('beginning while loop...')
@@ -308,17 +310,17 @@ class WellLogPlotter(FigureCanvas):
     #         print(f'subsea to depth ratio: {ratio_scale}:{scale_length} meters')
     #
     #
-    #         # self.overlay_ax.axvline(ratio_scale, 0.49, 0.51, color='purple', linewidth = 2)
-    #         # self.overlay_ax.text(ratio_scale, 0.51, f'{ratio_scale} m', va='bottom', ha='center', color='purple')
+    #         # self.scale_bar_axes.axvline(ratio_scale, 0.49, 0.51, color='purple', linewidth = 2)
+    #         # self.scale_bar_axes.text(ratio_scale, 0.51, f'{ratio_scale} m', va='bottom', ha='center', color='purple')
     #
-    #         self.overlay_ax.axvline(scale_length, 0.49, 0.51, color='brown', linewidth = 2)
-    #         self.overlay_ax.text(scale_length, 0.49, f'{scale_length} m', va='top', ha='center', color='brown')
+    #         self.scale_bar_axes.axvline(scale_length, 0.49, 0.51, color='brown', linewidth = 2)
+    #         self.scale_bar_axes.text(scale_length, 0.49, f'{scale_length} m', va='top', ha='center', color='brown')
     #
     #         ratio_scale = ratio_scale + 100
     #         print(f'updated ratio scale: {ratio_scale} meters')
     #
-    #     self.overlay_ax.axvline(horz_df['SS'].max(), 0.49, 0.51, color='black', linewidth = 3)
-    #     self.overlay_ax.text(horz_df['SS'].max() + 10, 0.49, f'{horz_df['SS'].max()} m')
+    #     self.scale_bar_axes.axvline(horz_df['SS'].max(), 0.49, 0.51, color='black', linewidth = 3)
+    #     self.scale_bar_axes.text(horz_df['SS'].max() + 10, 0.49, f'{horz_df['SS'].max()} m')
 
 class MainWindow(QMainWindow):
     def __init__(self):
