@@ -49,8 +49,8 @@ class WellLogPlotter(FigureCanvas):
         self.plot_horizontal_well()
 
         self.title_func()
-        self.scale_bar_md()
-        self.scale_bar_axes = None
+        # self.scale_bar_md()
+        # self.scale_bar_axes = None
         # self.scale_bar()
 
     def plotting_logs(self):
@@ -157,10 +157,22 @@ class WellLogPlotter(FigureCanvas):
         # make transparent background
         self.horz_well_axes.patch.set_alpha(0)
 
+        # get rid of window outline
+        for spine in self.horz_well_axes.spines.values():
+            spine.set_alpha(0)
+
+        # x axis
         self.horz_well_axes.set_xlabel('E-W Offset')
         self.horz_well_axes.set_xticks([])
-        self.horz_well_axes.set_ylabel('')
-        self.horz_well_axes.set_yticks([])
+
+        # y axis label
+        self.horz_well_axes.set_ylabel('Subsea (m)', color='darkblue')
+        self.horz_well_axes.yaxis.set_label_position('right')
+        self.horz_well_axes.yaxis.label.set_rotation(270)
+
+        # y axis ticks
+        self.horz_well_axes.yaxis.set_ticks_position('right')
+        self.horz_well_axes.tick_params(axis='y', colors='darkblue')
 
         # now to make sure the well spans the entire plot
         ymin, ymax = horz_df['SS'].min() - 100, horz_df['SS'].max() + 100
@@ -170,10 +182,6 @@ class WellLogPlotter(FigureCanvas):
         xmin, xmax = horz_df['EW'].min() - 100, horz_df['EW'].max() + 100
         # print(f'xmin: {xmin}, xmax: {xmax}')
         self.horz_well_axes.set_xlim(xmin, xmax)
-
-        # get rid of window outline
-        for spine in self.horz_well_axes.spines.values():
-            spine.set_alpha(0)
 
         self.horz_well_axes.scatter(
             horz_df['EW'], horz_df['SS'],  # x, y
@@ -202,61 +210,61 @@ class WellLogPlotter(FigureCanvas):
                      bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.6', alpha=0.8))
 
 
-    def scale_bar_md(self):
-        """
-        This function creates a scale bar to overlay the plots.
-        """
-        columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
-        horz_df = horz_loader()
-
-        self.scale_bar_axes = self.fig.add_axes((0.125, 0.109, 0.774, 0.77), sharey=self.axes[0])  # l b width height
-
-        # add_axes: good for manual locations
-        self.scale_bar_axes.set_navigate(True)
-
-        # make transparent background
-        self.scale_bar_axes.patch.set_alpha(0)
-
-        self.scale_bar_axes.set_xlabel('')
-        self.scale_bar_axes.set_xticks([])
-        self.scale_bar_axes.set_ylabel('')
-        self.scale_bar_axes.set_yticks([])
-
-        # get rid of window outline
-        for spine in self.scale_bar_axes.spines.values():
-            spine.set_alpha(0)
-
-        self.scale_bar_axes.set_xlim(0, horz_df['MD'].max())
-
-        midpoint = (df['DEPTH'].max() - df['DEPTH'].min()) /2
-        mp_pos_1 = midpoint + 1
-        mp_neg_1 = midpoint - 1
-
-        self.horz_lines_list.append(self.scale_bar_axes.axhline(y=midpoint, xmin=0, xmax=1, color='black', linewidth = 2))
-        self.vert_lines_list.append(self.scale_bar_axes.axvline(0, mp_neg_1, mp_pos_1, color='black', linewidth = 3))
-
-        count = 0
-        while count <= horz_df['MD'].max():
-            self.vert_lines_list.append(self.scale_bar_axes.axvline(count, 0.49, 0.51, color='purple',
-                                                                    linewidth=2))
-            self.text_lines_list.append(self.scale_bar_axes.text(count, (midpoint + 30), f'{count} m',
-                                                        va='top', ha='center', color='purple'))
-
-            count += 500
-
-        self.vert_lines_list.append(self.scale_bar_axes.axvline(horz_df['MD'].max(), 0.49, 0.51,
-                                                       color='black', linewidth = 3))
-
-        self.text_lines_list.append(self.scale_bar_axes.text(horz_df['MD'].max() + 10, midpoint,
-                                                             f'{horz_df['MD'].max()} m'))
-        self.text_lines_list.append(self.scale_bar_axes.text(horz_df['MD'].max() + 10, (midpoint - 40), 'MD'))
-
-    def toggle_scale_bar(self):
-        self.show_scale_bar = not self.show_scale_bar
-        for i in [self.vert_lines_list, self.horz_lines_list, self.text_lines_list]:
-            for j in i:
-                j.set_visible(self.show_scale_bar)
-        self.draw()
+    # def scale_bar_md(self):
+    #     """
+    #     This function creates a scale bar to overlay the plots.
+    #     """
+    #     columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
+    #     horz_df = horz_loader()
+    #
+    #     self.scale_bar_axes = self.fig.add_axes((0.125, 0.109, 0.774, 0.77), sharey=self.axes[0])  # l b width height
+    #
+    #     # add_axes: good for manual locations
+    #     self.scale_bar_axes.set_navigate(True)
+    #
+    #     # make transparent background
+    #     self.scale_bar_axes.patch.set_alpha(0)
+    #
+    #     self.scale_bar_axes.set_xlabel('')
+    #     self.scale_bar_axes.set_xticks([])
+    #     self.scale_bar_axes.set_ylabel('')
+    #     self.scale_bar_axes.set_yticks([])
+    #
+    #     # get rid of window outline
+    #     for spine in self.scale_bar_axes.spines.values():
+    #         spine.set_alpha(0)
+    #
+    #     self.scale_bar_axes.set_xlim(0, horz_df['MD'].max())
+    #
+    #     midpoint = (df['DEPTH'].max() - df['DEPTH'].min()) /2
+    #     mp_pos_1 = midpoint + 1
+    #     mp_neg_1 = midpoint - 1
+    #
+    #     self.horz_lines_list.append(self.scale_bar_axes.axhline(y=midpoint, xmin=0, xmax=1, color='black', linewidth = 2))
+    #     self.vert_lines_list.append(self.scale_bar_axes.axvline(0, mp_neg_1, mp_pos_1, color='black', linewidth = 3))
+    #
+    #     count = 0
+    #     while count <= horz_df['MD'].max():
+    #         self.vert_lines_list.append(self.scale_bar_axes.axvline(count, 0.49, 0.51, color='purple',
+    #                                                                 linewidth=2))
+    #         self.text_lines_list.append(self.scale_bar_axes.text(count, (midpoint + 30), f'{count} m',
+    #                                                     va='top', ha='center', color='purple'))
+    #
+    #         count += 500
+    #
+    #     self.vert_lines_list.append(self.scale_bar_axes.axvline(horz_df['MD'].max(), 0.49, 0.51,
+    #                                                    color='black', linewidth = 3))
+    #
+    #     self.text_lines_list.append(self.scale_bar_axes.text(horz_df['MD'].max() + 10, (midpoint + 20),
+    #                                                          f'{horz_df['MD'].max()} m'))
+    #     self.text_lines_list.append(self.scale_bar_axes.text(horz_df['MD'].max() + 10, (midpoint - 30), 'MD'))
+    #
+    # def toggle_scale_bar(self):
+    #     self.show_scale_bar = not self.show_scale_bar
+    #     for i in [self.vert_lines_list, self.horz_lines_list, self.text_lines_list]:
+    #         for j in i:
+    #             j.set_visible(self.show_scale_bar)
+    #     self.draw()
 
     # def scale_bar(self):
     #     columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
@@ -344,26 +352,26 @@ class MainWindow(QMainWindow):
         }
         """)
 
-        # for the scale bar
-        self.toggle_button_b = QToolButton()
-        self.toggle_button_b.setText('Toggle Scale Bar')
-        self.toggle_button_b.clicked.connect(self.canvas.toggle_scale_bar)
-        self.toggle_button_b.setAutoRaise(False)
-        # styling the button
-        self.toggle_button_b.setStyleSheet("""
-        QToolButton {background-color: purple; color: white; font: bold 12px; border: 2px dark purple;
-            border-radius: 4px; padding: 4px;
-        }
-
-        QToolButton:hover {background-color: black; color: white; font: bold 12px; border: 2px solid purple;
-            border-radius: 4px;padding: 4px;
-        }
-        """)
+        # # for the scale bar
+        # self.toggle_button_b = QToolButton()
+        # self.toggle_button_b.setText('Toggle Scale Bar')
+        # self.toggle_button_b.clicked.connect(self.canvas.toggle_scale_bar)
+        # self.toggle_button_b.setAutoRaise(False)
+        # # styling the button
+        # self.toggle_button_b.setStyleSheet("""
+        # QToolButton {background-color: purple; color: white; font: bold 12px; border: 2px dark purple;
+        #     border-radius: 4px; padding: 4px;
+        # }
+        #
+        # QToolButton:hover {background-color: black; color: white; font: bold 12px; border: 2px solid purple;
+        #     border-radius: 4px;padding: 4px;
+        # }
+        # """)
 
         layout = QVBoxLayout()
         layout.addWidget(self.toolbar)
         self.toolbar.addWidget(self.toggle_button)  # to put button beside toolbar
-        self.toolbar.addWidget(self.toggle_button_b)
+        # self.toolbar.addWidget(self.toggle_button_b)
         layout.addWidget(self.canvas)
 
         # 'wrap' everything
