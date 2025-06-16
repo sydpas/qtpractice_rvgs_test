@@ -42,7 +42,6 @@ class WellLogPlotter(FigureCanvas):
         self.vert_lines_list = []
         self.text_lines_list = []
 
-        self.depth_to_subsea()
         # plotting logs and tops
         self.plotting_logs()
 
@@ -54,11 +53,6 @@ class WellLogPlotter(FigureCanvas):
         # self.scale_bar_axes = None
         # self.scale_bar()
 
-    def depth_to_subsea(self):
-        columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
-        df['SUBSEA'] = df['DEPTH'] - kb
-        return df  # return updated dataframe with SUBSEA column
-
     def plotting_logs(self):
         """
         This function plots the logs.
@@ -67,7 +61,6 @@ class WellLogPlotter(FigureCanvas):
         columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
         well_tops_list = top_load()
         ax_list, col_list = organize_curves()
-        d_t_ss = self.depth_to_subsea()
 
         self.fig.clear()
         self.axes = self.fig.subplots(1, len(ax_list), sharey = True, gridspec_kw={'width_ratios': [1, 2, 1, 2, 2]})
@@ -102,11 +95,13 @@ class WellLogPlotter(FigureCanvas):
 
                 if curve == 'GR':
                     df.plot(
-                        x=curve, y='DEPTH', color='black', ax=ax,
+                        x=curve, y='SUBSEA', color='black', ax=ax,
                         linewidth=0.5, marker='o', markersize=0.1, alpha=0.3, label='GR')
-                    ax.fill_betweenx(df['DEPTH'], df[curve], 75, facecolor='yellow', alpha=0.5)
-                    ax.fill_betweenx(df['DEPTH'], df[curve], 0, facecolor='white')
+                    ax.fill_betweenx(df['SUBSEA'], df[curve], 75, facecolor='yellow', alpha=0.5)
+                    ax.fill_betweenx(df['SUBSEA'], df[curve], 0, facecolor='white')
                     ax.axvline(75, color='black', linewidth=0.5, alpha=0.5)
+
+                    print(f'x: {curve}, y: {df['SUBSEA']}')
 
                 else:
 
@@ -117,13 +112,14 @@ class WellLogPlotter(FigureCanvas):
                     next_ax = ax2 if j > 0 and ax2 else ax
 
                     df.plot(
-                        x=curve, y='DEPTH', color=shade, ax=next_ax,
+                        x=curve, y='SUBSEA', color=shade, ax=next_ax,
                         linewidth=0.5, marker='o', markersize=0.1, alpha=0.3, label=curve)
 
             # adjusting proper y limits and x limits
-            ax.set_ylim(df['DEPTH'].min(), df['DEPTH'].max())
-            print(f"yaxis values (depth): {ax.get_ylim()}")
-            ax.set_ylabel('Vertical Depth (m)')
+            ax.set_ylim(df['SUBSEA'].min(), df['SUBSEA'].max())
+            print(f'kb for well logs: {kb}')
+            print(f'yaxis min (ss for well logs): {df['SUBSEA'].min()}, max (ss for well logs): {df['SUBSEA'].max()}')
+            ax.set_ylabel('Subsea for Logs (m)')
             ax.invert_yaxis()
 
             ax.set_xlim(df[curves[0]].min(), df[curves[0]].max())
@@ -173,7 +169,7 @@ class WellLogPlotter(FigureCanvas):
         self.horz_well_axes.set_xticks([])
 
         # y axis label
-        self.horz_well_axes.set_ylabel('Subsea (m)', color='darkblue')
+        self.horz_well_axes.set_ylabel('Subsea for Horz Well (m)', color='darkblue')
         self.horz_well_axes.yaxis.set_label_position('right')
         self.horz_well_axes.yaxis.label.set_rotation(270)
 
@@ -183,7 +179,8 @@ class WellLogPlotter(FigureCanvas):
 
         # now to make sure the well spans the entire plot
         ymin, ymax = horz_df['SS'].min() - 100, horz_df['SS'].max() + 100
-        print(f'yaxis min (ss): {ymin}, max (ss): {ymax}')
+        print(f'kb for horz well: 824')
+        print(f'yaxis min (ss for horz well): {ymin}, max (ss for horz well): {ymax}')
         self.horz_well_axes.set_ylim(ymin, ymax)
 
         xmin, xmax = horz_df['EW'].min() - 100, horz_df['EW'].max() + 100
