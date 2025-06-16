@@ -90,7 +90,7 @@ class WellLogPlotter(FigureCanvas):
                     line = ax.axhline(y=y, color='red', lw=1.5, ls='-')  # tops
                     self.tops_lines_list.append(line) # add lines to the list
                     if i == 0:
-                        top_name = ax.text(x=-20, y=y, s=horz, color='red', fontsize=8, ha='center', va='center')
+                        top_name = ax.text(x=-20, y=y, s=horz, color='red', fontsize=4, ha='center', va='center')
                         self.tops_lines_list.append(top_name)  # add top names to the list
 
             ax2 = ax.twiny()
@@ -191,7 +191,7 @@ class WellLogPlotter(FigureCanvas):
         self.overlay_ax.axhline(0, 0, 1, color='darkblue', lw=1.5, ls='--', alpha=0.5, label='Sea Level')
 
         # find the point in the well that's closest to a chosen MD
-        target_md = 910
+        target_md = 2000
         # subtracts target from every MD val, take abs val, find index where val is small, take entire row (iloc)
         closest_point = horz_df.iloc[(horz_df['MD'] - target_md).abs().idxmin()]
 
@@ -212,6 +212,9 @@ class WellLogPlotter(FigureCanvas):
 
 
     def scale_bar_md(self):
+        """
+        This function creates a scale bar to overlay the plots.
+        """
         horz_df = horz_loader()
 
         # creating a new overlay for the scale bar
@@ -333,23 +336,12 @@ class MainWindow(QMainWindow):
         self.toggle_button.setAutoRaise(False)
         # styling the button
         self.toggle_button.setStyleSheet("""
-        QToolButton {
-            background-color: red;
-            color: white;
-            font: bold 12px;
-            border: 2px dark red;
-            border-radius: 4px;
+        QToolButton {background-color: red; color: white; font: bold 12px; border: 2px dark red; border-radius: 4px;
             padding: 4px;
         }
 
-        QToolButton:hover {
-            background-color: black;
-            color: white;
-            font: bold 12px;
-            border: 2px solid red;
-            border-radius: 4px;
-            padding: 4px;
-
+        QToolButton:hover {background-color: black; color: white; font: bold 12px; border: 2px solid red; 
+            border-radius: 4px; padding: 4px;
         }
         """)
 
@@ -360,23 +352,12 @@ class MainWindow(QMainWindow):
         self.toggle_button_b.setAutoRaise(False)
         # styling the button
         self.toggle_button_b.setStyleSheet("""
-        QToolButton {
-            background-color: purple;
-            color: white;
-            font: bold 12px;
-            border: 2px dark purple;
-            border-radius: 4px;
-            padding: 4px;
+        QToolButton {background-color: purple; color: white; font: bold 12px; border: 2px dark purple;
+            border-radius: 4px; padding: 4px;
         }
 
-        QToolButton:hover {
-            background-color: black;
-            color: white;
-            font: bold 12px;
-            border: 2px solid purple;
-            border-radius: 4px;
-            padding: 4px;
-
+        QToolButton:hover {background-color: black; color: white; font: bold 12px; border: 2px solid purple;
+            border-radius: 4px;padding: 4px;
         }
         """)
 
