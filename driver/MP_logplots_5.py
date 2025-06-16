@@ -42,6 +42,7 @@ class WellLogPlotter(FigureCanvas):
         self.vert_lines_list = []
         self.text_lines_list = []
 
+        self.depth_to_subsea()
         # plotting logs and tops
         self.plotting_logs()
 
@@ -53,6 +54,11 @@ class WellLogPlotter(FigureCanvas):
         # self.scale_bar_axes = None
         # self.scale_bar()
 
+    def depth_to_subsea(self):
+        columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
+        df['SUBSEA'] = df['DEPTH'] - kb
+        return df  # return updated dataframe with SUBSEA column
+
     def plotting_logs(self):
         """
         This function plots the logs.
@@ -61,6 +67,7 @@ class WellLogPlotter(FigureCanvas):
         columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
         well_tops_list = top_load()
         ax_list, col_list = organize_curves()
+        d_t_ss = self.depth_to_subsea()
 
         self.fig.clear()
         self.axes = self.fig.subplots(1, len(ax_list), sharey = True, gridspec_kw={'width_ratios': [1, 2, 1, 2, 2]})
@@ -115,7 +122,7 @@ class WellLogPlotter(FigureCanvas):
 
             # adjusting proper y limits and x limits
             ax.set_ylim(df['DEPTH'].min(), df['DEPTH'].max())
-            # print(f"yaxis values (depth): {ax.get_ylim()}")
+            print(f"yaxis values (depth): {ax.get_ylim()}")
             ax.set_ylabel('Vertical Depth (m)')
             ax.invert_yaxis()
 
@@ -176,7 +183,7 @@ class WellLogPlotter(FigureCanvas):
 
         # now to make sure the well spans the entire plot
         ymin, ymax = horz_df['SS'].min() - 100, horz_df['SS'].max() + 100
-        # print(f'yaxis min (ss): {ymin}, max (ss): {ymax}')
+        print(f'yaxis min (ss): {ymin}, max (ss): {ymax}')
         self.horz_well_axes.set_ylim(ymin, ymax)
 
         xmin, xmax = horz_df['EW'].min() - 100, horz_df['EW'].max() + 100
