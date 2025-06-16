@@ -30,7 +30,7 @@ def top_load():
 
         well_tops_list.append(tops)
 
-    print(f'well tops list: {well_tops_list}')
+    # print(f'well tops list: {well_tops_list}')
 
     return well_tops_list
 
