@@ -43,4 +43,8 @@ def mainpass_well():
     kb = las.params['EREF'].value if 'EREF' in las.params else None
     # print(f'LAS KB value: {kb}')
 
+    # depth to ss
+    df['SUBSEA'] = df['DEPTH'] - 824
+    df[['DEPTH', 'SUBSEA']].reset_index()  # turns depth into normal column
+
     return columns, non_depth_curves, curve_unit_list, df, loc, comp, kb
