@@ -51,7 +51,6 @@ class WellLogPlotter(FigureCanvas):
         self.scale_bar_md()
         # self.scale_bar()
 
-
     def plotting_logs(self):
         """
         This function plots the logs.
@@ -64,17 +63,6 @@ class WellLogPlotter(FigureCanvas):
         self.fig.clear()
         self.axes = self.fig.subplots(1, len(ax_list), sharey = True, gridspec_kw={'width_ratios': [1, 2, 1, 2, 2]})
         # subplots: gridbased, good for shared axes
-
-        # pos = self.axes[0].get_position()
-        # print(f"for first axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
-        # pos = self.axes[1].get_position()
-        # print(f"for second axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
-        # pos = self.axes[2].get_position()
-        # print(f"for third axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
-        # pos = self.axes[3].get_position()
-        # print(f"for fourth axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
-        # pos = self.axes[4].get_position()
-        # print(f"for fifth axis, x0: {pos.x0}, y0: {pos.y0}, width: {pos.width}, height: {pos.height}")
 
         shade_list = ['blue', 'green', 'orange']
         curve_counter = 0
@@ -165,7 +153,7 @@ class WellLogPlotter(FigureCanvas):
         self.horz_well_axes.set_navigate(False)
 
         # make transparent background
-        self.horz_well_axes.patch.set_alpha(0)
+        self.horz_well_axes.patch.set_alpha(0.5)
 
         self.horz_well_axes.set_xlabel('E-W Offset')
         self.horz_well_axes.set_xticks([])
