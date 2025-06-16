@@ -114,7 +114,7 @@ class WellLogPlotter(FigureCanvas):
             # adjusting proper y limits and x limits
             ax.set_ylim(df['DEPTH'].min(), df['DEPTH'].max())
             # print(f"yaxis values (depth): {ax.get_ylim()}")
-            ax.set_ylabel('Depth (m) for the Well Logs')
+            ax.set_ylabel('Vertical Depth (m)')
             ax.invert_yaxis()
 
             ax.set_xlim(df[curves[0]].min(), df[curves[0]].max())
@@ -153,7 +153,7 @@ class WellLogPlotter(FigureCanvas):
         self.horz_well_axes.set_navigate(False)
 
         # make transparent background
-        self.horz_well_axes.patch.set_alpha(0.5)
+        self.horz_well_axes.patch.set_alpha(0)
 
         self.horz_well_axes.set_xlabel('E-W Offset')
         self.horz_well_axes.set_xticks([])
