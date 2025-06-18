@@ -131,3 +131,9 @@
 #     border-radius: 4px;padding: 4px;
 # }
 # """)
+
+
+# # plotting target point
+# self.horz_well_axes.scatter(
+#     horz_df['EW'].values[i], constant,
+#     color='orange', edgecolors='brown', marker='X', s=40, label='Target Point')
