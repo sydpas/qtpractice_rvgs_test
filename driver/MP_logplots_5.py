@@ -76,17 +76,23 @@ class WellLogPlotter(FigureCanvas):
             for horz, depth in top.items():
                 if pd.notna(depth):
                     y = float(depth)
-                    line = ax.axhline(y=y, color='red', lw=1.5, ls='-')  # tops
+                    line = ax.axhline(y=y, color='red', lw=1, ls='-')  # tops
                     self.tops_lines_list.append(line) # add lines to the list
                     if i == 0:
-                        top_name = ax.text(x=-20, y=y, s=horz, color='red', fontsize=4, ha='center', va='center')
+                        top_name = ax.text(x=0, y=y - 5, s=horz, color='red', fontsize=5, ha='right', va='center')
                         self.tops_lines_list.append(top_name)  # add top names to the list
 
             ax2 = ax.twiny()
-            ax2.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False, labeltop=False)
+            ax2.tick_params(axis='x', which='both', bottom=False, top=True, labelbottom=False, labeltop=True,
+                            labelsize=6)
 
             for j, curve in enumerate(curves):
-                ax.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False, labeltop=False)
+                unit = curve_unit_list.get(curve, '')
+                print(f'unit for {curve} is {unit}')
+                # unit labels
+                ax.tick_params(axis='x', which='both', bottom=True, top=False, labelbottom=True, labeltop=False,
+                               labelsize=6)
+
                 if i != 0:
                     ax.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
                     ax2.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
@@ -110,12 +116,11 @@ class WellLogPlotter(FigureCanvas):
                         x=curve, y='SUBSEA', color=shade, ax=next_ax,
                         linewidth=0.5, marker='o', markersize=0.1, alpha=0.3, label=curve)
 
-            # adjusting proper y limits
-            ax.set_ylim(df['SUBSEA'].min(), df['SUBSEA'].max())
+                if j == 0:
+                    ax.set_xlabel(f"{curve} ({unit})", fontsize=5, labelpad=5)
+                else:
+                    ax2.set_xlabel(f"{curve} ({unit})", fontsize=5, labelpad=5)
 
-            if i == len(ax_list) - 1:
-                print(f'kb for well logs: {kb}')
-                print(f'yaxis min (ss for well logs): {df['SUBSEA'].min()}, max (ss for well logs): {df['SUBSEA'].max()}')
 
             if ax2:
                 ax2.set_ylabel('Subsea for Logs (m)', color='darkred')
@@ -124,16 +129,13 @@ class WellLogPlotter(FigureCanvas):
                 ax.set_ylabel('Subsea for Logs (m)', color='darkred')
                 ax.tick_params(axis='y', colors='darkred')
 
-            # ax.invert_yaxis(
+            # adjusting proper y limits
+            ax.set_ylim(df['SUBSEA'].min(), df['SUBSEA'].max())
 
             # ... and x limits
             ax.set_xlim(df[curves[0]].min(), df[curves[0]].max())
             if ax2:
                 ax2.set_xlim(df[curves[-1]].min(), df[curves[-1]].max())
-            # removing x-axis
-            ax.set_xlabel('')
-            if ax2:
-                ax2.set_xlabel('')
 
             # combining the legends and putting bottom left
             if ax2:
@@ -157,6 +159,7 @@ class WellLogPlotter(FigureCanvas):
         """
         This function creates a horizontal well overlay on top of the previous well logs.
         """
+        columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
         horz_df = horz_loader()
 
         # create an overlay axis, will have to fix width and height
@@ -182,12 +185,6 @@ class WellLogPlotter(FigureCanvas):
         # y axis ticks
         self.horz_well_axes.yaxis.set_ticks_position('right')
         self.horz_well_axes.tick_params(axis='y', colors='darkblue')
-
-        # now to make sure the well spans the entire plot
-        ymin, ymax = horz_df['SS'].min(), horz_df['SS'].max()
-        print(f'kb for horz well: 824')
-        print(f'yaxis min (ss for horz well): {ymin}, max (ss for horz well): {ymax}')
-        self.horz_well_axes.set_ylim(ymin, ymax)
 
         xmin, xmax = horz_df['EW'].min(), horz_df['EW'].max()
         # print(f'xmin for EW: {xmin}, xmax for EW: {xmax}')
@@ -217,7 +214,7 @@ class WellLogPlotter(FigureCanvas):
 
         uwi_title = horz_df['UWI'][0]
         plt.suptitle(f'Horizontal Well ({uwi_title}) on\n {loc} for {comp}\n +{kb:.2f}m', fontsize=8, fontweight='bold',
-                     bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='square,pad=0.6', alpha=0.8))
+                     bbox=dict(facecolor='#9ad1d4', edgecolor='#80ced7', boxstyle='square,pad=0.6', alpha=0.8))
 
 
 class MainWindow(QMainWindow):
@@ -236,11 +233,11 @@ class MainWindow(QMainWindow):
         self.toggle_button.setAutoRaise(False)
         # styling the button
         self.toggle_button.setStyleSheet("""
-        QToolButton {background-color: red; color: white; font: bold 12px; border: 2px dark red; border-radius: 4px;
+        QToolButton {background-color: #d00000; color: white; font: bold 12px; border: 2px white; border-radius: 4px;
             padding: 4px;
         }
 
-        QToolButton:hover {background-color: black; color: white; font: bold 12px; border: 2px solid red; 
+        QToolButton:hover {background-color: #9d0208; color: white; font: bold 12px; border: 2px white; 
             border-radius: 4px; padding: 4px;
         }
         """)

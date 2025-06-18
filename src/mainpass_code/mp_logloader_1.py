@@ -25,9 +25,7 @@ def mainpass_well():
     # print(f'dictionary: {curve_name_dict}')
 
     # making list of units
-    curve_unit_list = []
-    for curve in curve_list:
-        curve_unit_list.append(curve.unit)
+    curve_unit_list = {curve.mnemonic: curve.unit for curve in las.curves if curve.mnemonic != 'DEPT'}
     # print(f'units: {curve_unit_list}')
 
     non_depth_curves = [
