@@ -64,7 +64,7 @@ class WellLogPlotter(FigureCanvas):
                                       gridspec_kw={'width_ratios': [1, 2, 1, 2, 2]})
         # subplots: gridbased, good for shared axes
 
-        shade_list = ['blue', 'green', 'orange']
+        shade_list = ['#0c63e7', '#4c956c', '#f77f00']
         curve_counter = 0
 
         for i, (curves, ax) in enumerate(zip(ax_list, self.axes)):  # zip pairs up elements from 2 lists and brings them together
@@ -95,7 +95,7 @@ class WellLogPlotter(FigureCanvas):
                     df.plot(
                         x=curve, y='SUBSEA', color='black', ax=ax,
                         linewidth=0.5, marker='o', markersize=0.1, alpha=0.3, label='GR')
-                    ax.fill_betweenx(df['SUBSEA'], df[curve], 75, facecolor='yellow', alpha=0.5)
+                    ax.fill_betweenx(df['SUBSEA'], df[curve], 75, facecolor='#ffc300', alpha=0.5)
                     ax.fill_betweenx(df['SUBSEA'], df[curve], 0, facecolor='white')
                     ax.axvline(75, color='black', linewidth=0.5, alpha=0.5)
 
@@ -194,7 +194,7 @@ class WellLogPlotter(FigureCanvas):
         self.horz_well_axes.set_xlim(xmin, xmax)
 
         # sea level line
-        self.horz_well_axes.axhline(0, 0, 1, color='darkblue', lw=1.5, ls='--', alpha=0.5,
+        self.horz_well_axes.axhline(0, 0, 1, color='#3a506b', lw=1.5, ls='--', alpha=0.6,
                                     label='Sea Level')
 
         for i in range(1, len(horz_df['SS'].values)):
