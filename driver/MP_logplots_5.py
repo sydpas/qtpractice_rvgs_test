@@ -124,7 +124,7 @@ class WellLogPlotter(FigureCanvas):
                 ax.set_ylabel('Subsea for Logs (m)', color='darkred')
                 ax.tick_params(axis='y', colors='darkred')
 
-            # ax.invert_yaxis()
+            # ax.invert_yaxis(
 
             # ... and x limits
             ax.set_xlim(df[curves[0]].min(), df[curves[0]].max())
@@ -190,24 +190,23 @@ class WellLogPlotter(FigureCanvas):
         self.horz_well_axes.set_ylim(ymin, ymax)
 
         xmin, xmax = horz_df['EW'].min(), horz_df['EW'].max()
-        print(f'xmin for EW: {xmin}, xmax for EW: {xmax}')
+        # print(f'xmin for EW: {xmin}, xmax for EW: {xmax}')
         self.horz_well_axes.set_xlim(xmin, xmax)
 
+        # sea level line
+        self.horz_well_axes.axhline(0, 0, 1, color='darkblue', lw=1.5, ls='--', alpha=0.5,
+                                    label='Sea Level')
+
+        for i in range(1, len(horz_df['SS'].values)):
+            if horz_df['SS'].values[i] == horz_df['SS'].values[i - 1]:
+                constant = horz_df['SS'].values[i]
+                self.horz_well_axes.axhline(constant, 0, 1, color='#4A3728', lw=1.5, ls='-', alpha=0.8,
+                                            label='Constant')
+                break
+
         self.horz_well_axes.scatter(
-            horz_df['EW'], horz_df['SS'],  # x, y
-            color='brown', marker='.', s=20, label='Horizontal Well')
-
-        self.horz_well_axes.axhline(0, 0, 1, color='darkblue', lw=1.5, ls='--', alpha=0.5, label='Sea Level')
-
-        # find the point in the well that's closest to a chosen MD
-        target_md = 1600
-        # subtracts target from every MD val, take abs val, find index where val is small, take entire row (iloc)
-        closest_point = horz_df.iloc[(horz_df['MD'] - target_md).abs().idxmin()]
-
-        # plotting target point
-        self.horz_well_axes.scatter(
-            closest_point['EW'], closest_point['SS'],
-            color='orange', edgecolors='brown', marker='X', s=40, label='Target Point')
+                horz_df['EW'], horz_df['SS'],  # x, y
+                color='#371D10', marker='.', s=20, label='Horizontal Well')
 
         self.horz_well_axes.legend(loc='upper right', fontsize=7)
 
