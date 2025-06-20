@@ -7,14 +7,14 @@ def horz_loader():
     """
 
 
-    surv_1_7 = pd.read_csv('../csv_files/ss_1-7Surv.csv')
+    surv_1_7 = pd.read_csv('../csv_files/horz_1-7Surv.csv')
 
     df = pd.DataFrame({
         'UWI': surv_1_7['UWI'],
-        'EW': surv_1_7['EW Offset'],
-        'NS': surv_1_7['NS Offset'],
-        'MD': surv_1_7['Measured Depth'],
-        'TVD': surv_1_7['TVD'],
-        'SS': surv_1_7['subsea']})
+        'EW': surv_1_7['eoff'],
+        'NS': surv_1_7['noff'],
+        'MD': surv_1_7['MD'],
+        'TVD': surv_1_7['tvd'],
+        'SS': surv_1_7['ss']})
 
     return df
