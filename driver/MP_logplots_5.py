@@ -1,7 +1,5 @@
 import sys
 
-import numpy as np
-
 from mainpass_code.mp_logloader_1 import (mainpass_well)
 from wellylassioqt.topsloader_2 import (top_load)
 from mainpass_code.mp_assembly_3 import (organize_curves)
@@ -9,6 +7,7 @@ from wellylassioqt.wellinfo_4 import (horz_loader)
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from PIL import Image
 
 from matplotlib.backends.backend_qtagg import (
     FigureCanvasQTAgg as FigureCanvas,
@@ -20,6 +19,8 @@ from PySide6.QtWidgets import (
 )
 
 from PySide6.QtCore import Qt
+
+from PySide6.QtGui import QIcon
 
 
 
@@ -34,7 +35,7 @@ class TitleBox(QLabel):
         title_text = f'Horizontal Well ({uwi_title}) on {loc} for {comp}\n+{kb:.2f} m'
 
         self.setText(title_text)
-        self.setAlignment(Qt.AlignCenter)
+        self.setAlignment(Qt.AlignCenter)  # issue but it works
         self.setStyleSheet("""
             QLabel {background-color: #9ad1d4; color: black; font-weight: bold; font-size: 14px; padding: 2px;
                 border: 2px solid #80ced7; border-radius: 4px;
@@ -264,7 +265,6 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.title_box)
         layout.addWidget(self.well_plot)
 
-
         # 'wrap' everything
         container = QWidget()
         container.setLayout(layout)
@@ -272,8 +272,22 @@ class MainWindow(QMainWindow):
 
 
 def main():
+    try:
+        img = Image.open('C:/Users/sydne/git/rvgs/qtpractice_rvgs_test/icon/horzwellicon.png')
+        img.save('C:/Users/sydne/git/rvgs/qtpractice_rvgs_test/icon/horz_well.ico', format='ICO', sizes=[
+            (16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)
+        ])
+        print('conversion worked')
+    except Exception as e:
+        print(f'conversion did not work! {e}')
+
     app = QApplication(sys.argv)
+    icon_path = 'C:/Users/sydne/git/rvgs/qtpractice_rvgs_test/icon/horz_well.ico'
+
+
+    app.setWindowIcon(QIcon(icon_path))
     window = MainWindow()
+    window.setWindowIcon(QIcon(icon_path))
     window.show()
     sys.exit(app.exec())
 
