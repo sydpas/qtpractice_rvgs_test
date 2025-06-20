@@ -232,7 +232,7 @@ class WellLogPlotter(FigureCanvas):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Well Log Plotter")
+        self.setWindowTitle("LogiZontal")
         self.setGeometry(100, 100, 800, 1100)  # width, height
 
         self.well_plot = WellLogPlotter()
@@ -272,8 +272,8 @@ class MainWindow(QMainWindow):
 
 def main():
     try:
-        img = Image.open('C:/Users/sydne/git/rvgs/qtpractice_rvgs_test/icon/horzwellicon_designed.png')
-        img.save('C:/Users/sydne/git/rvgs/qtpractice_rvgs_test/icon/horz_well.ico', format='ICO', sizes=[
+        img = Image.open('C:/Users/sydne/git/rvgs/qtpractice_rvgs_test/icon/lgz.png')
+        img.save('C:/Users/sydne/git/rvgs/qtpractice_rvgs_test/icon/lgz.ico', format='ICO', sizes=[
             (16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)
         ])
         print('conversion worked')
@@ -281,7 +281,7 @@ def main():
         print(f'conversion did not work! {e}')
 
     app = QApplication(sys.argv)
-    icon_path = 'C:/Users/sydne/git/rvgs/qtpractice_rvgs_test/icon/horz_well.ico'
+    icon_path = 'C:/Users/sydne/git/rvgs/qtpractice_rvgs_test/icon/lgz.ico'
 
     app.setWindowIcon(QIcon(icon_path))
     window = MainWindow()

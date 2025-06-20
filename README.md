@@ -1,6 +1,6 @@
 # Well Log Display for the Retlaw Area
 
-![Icon](./icon/horzwellicon_designed.PNG)
+## LogiZontal: An app desgined to display horizontal wells overtop well log data.
 
 ### The goal of this project is to:
 - develop and maintain Python scripts for horizontal well display. 
