@@ -143,7 +143,6 @@ class WellLogPlotter(FigureCanvas):
 
                 if j != 0:
                     ax2.set_xlabel(f'{curve} ({unit})', fontsize=5, labelpad=4, fontstyle='italic')
-                    print(f'labeled ax2 (top) for {curve}...')
 
                 else:
                     ax.set_xlabel(f'{curve} ({unit})', fontsize=5, labelpad=4, fontstyle='italic')

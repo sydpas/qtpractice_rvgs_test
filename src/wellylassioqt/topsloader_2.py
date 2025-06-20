@@ -15,7 +15,6 @@ def top_load():
 
     current_dir = os.path.dirname(__file__)
     csv_path = os.path.abspath(os.path.join(current_dir, "../../csv_files/1506tops.csv"))
-
     well_tops = pd.read_csv(csv_path)
 
     # print(well_tops.head())
