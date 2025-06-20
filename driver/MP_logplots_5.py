@@ -93,7 +93,7 @@ class WellLogPlotter(FigureCanvas):
             ax = self.axes[i]
             top = well_tops_list[0]
 
-            print(f'Plotting curve: {curves}...')
+            print(f'Plotting curve(s): {curves}...')
 
             for horz, depth in top.items():
                 if pd.notna(depth):
@@ -107,10 +107,9 @@ class WellLogPlotter(FigureCanvas):
             ax2 = ax.twiny()
             # unit labels
             ax.tick_params(axis='x', which='both', bottom=True, top=False, labelbottom=True, labeltop=False,
-                           labelsize=6, color='red')
-
+                           labelsize=6)
             ax2.tick_params(axis='x', which='both', bottom=False, top=True, labelbottom=False, labeltop=True,
-                            labelsize=6, color='blue')
+                            labelsize=6)
 
             # take away y just to use the horz ss well
             ax.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
@@ -120,7 +119,8 @@ class WellLogPlotter(FigureCanvas):
 
             for j, curve in enumerate(curves):
                 unit = curve_unit_list.get(curve, '')
-                print(f'unit for {curve} is {unit}')
+                print(f'Plotting curve {j}: {curve}...')
+                print(f'The unit for {curve} is {unit}')
 
                 if curve == 'GR':
                     df.plot(
@@ -135,16 +135,17 @@ class WellLogPlotter(FigureCanvas):
                     curve_counter += 1
                     # print(f'Shade for {curve}: {shade}')
 
-                    next_ax = ax2 if j > 0 and ax2 else ax
+                    next_ax = ax2 if j != 0 and ax2 else ax
                     df.plot(
                         x=curve, y='SUBSEA', color=shade, ax=next_ax,
                         linewidth=0.5, marker='o', markersize=0.1, alpha=0.4, label=curve)
 
-                if j > 0:
-                    ax2.set_xlabel(f"{curve} ({unit})", fontsize=5, labelpad=3, color='blue')
-                else:
-                    ax.set_xlabel(f"{curve} ({unit})", fontsize=5, labelpad=3, color='red')
+                if j != 0:
+                    ax2.set_xlabel(f"{curve} ({unit})", fontsize=5, labelpad=4)
+                    print(f'labeled ax2 (top) for {curve}...')
 
+                else:
+                    ax.set_xlabel(f"{curve} ({unit})", fontsize=5, labelpad=4)
 
             # adjusting proper y limits
             ax.set_ylim(df['SUBSEA'].min(), df['SUBSEA'].max())
@@ -161,7 +162,8 @@ class WellLogPlotter(FigureCanvas):
                 ax.legend(lines_1 + lines_2, labels_1 + labels_2, loc='lower left', fontsize=6)
                 ax2.get_legend().remove() if ax2.get_legend() else None
 
-            ax.set_title(' and '.join(curves), fontsize=10)
+            ax.set_title(' and '.join(curves), fontsize=12, pad=8)
+
             ax.minorticks_on()
             ax.tick_params(axis='y', which='minor', labelsize=0)  # hide minor tick labels
             ax.yaxis.grid(True, which='both', linestyle='-', alpha=0.5, linewidth=0.5)

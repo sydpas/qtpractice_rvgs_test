@@ -45,4 +45,9 @@ def mainpass_well():
     df['SUBSEA'] = 824 - df['DEPTH']
     df[['DEPTH', 'SUBSEA']].reset_index()  # turns depth into normal column
 
+    df['DT'] = df['DT'].clip(upper=450)  # trimming DT
+    df['ILD'] = df['ILD'].clip(upper=30)  # trimming DT
+
+    # print(f'dt lims: {df['DT'].min(), df['DT'].max()}')
+
     return columns, non_depth_curves, curve_unit_list, df, loc, comp, kb
