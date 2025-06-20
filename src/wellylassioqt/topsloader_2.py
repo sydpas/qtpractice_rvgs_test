@@ -1,5 +1,6 @@
 import pandas as pd
 from mainpass_code.mp_logloader_1 import (mainpass_well)
+import os
 
 
 
@@ -11,7 +12,11 @@ def top_load():
         well_tops_list: list of all well tops from a CSV file.
     """
     _, _, _, _, _, _, kb = mainpass_well()
-    well_tops = pd.read_csv('../csv_files/1506tops.csv')
+
+    current_dir = os.path.dirname(__file__)
+    csv_path = os.path.abspath(os.path.join(current_dir, "../../csv_files/1506tops.csv"))
+
+    well_tops = pd.read_csv(csv_path)
 
     # print(well_tops.head())
 
