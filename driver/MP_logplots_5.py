@@ -1,5 +1,7 @@
 import sys
 
+import numpy as np
+
 from mainpass_code.mp_logloader_1 import (mainpass_well)
 from wellylassioqt.topsloader_2 import (top_load)
 from mainpass_code.mp_assembly_3 import (organize_curves)
@@ -103,26 +105,27 @@ class WellLogPlotter(FigureCanvas):
                         self.tops_lines_list.append(top_name)  # add top names to the list
 
             ax2 = ax.twiny()
-            ax2.tick_params(axis='x', which='both', bottom=False, top=True, labelbottom=False, labeltop=True,
-                            labelsize=6)
+            # unit labels
+            ax.tick_params(axis='x', which='both', bottom=True, top=False, labelbottom=True, labeltop=False,
+                           labelsize=6, color='red')
 
+            ax2.tick_params(axis='x', which='both', bottom=False, top=True, labelbottom=False, labeltop=True,
+                            labelsize=6, color='blue')
+
+            # take away y just to use the horz ss well
+            ax.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
+            ax2.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
+            ax.set_ylabel('')
+            ax2.set_ylabel('')
 
             for j, curve in enumerate(curves):
                 unit = curve_unit_list.get(curve, '')
                 print(f'unit for {curve} is {unit}')
-                # unit labels
-                ax.tick_params(axis='x', which='both', bottom=True, top=False, labelbottom=True, labeltop=False,
-                               labelsize=6)
-
-                ax.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
-                ax2.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
-                ax.set_ylabel('')
-                ax2.set_ylabel('')
 
                 if curve == 'GR':
                     df.plot(
                         x=curve, y='SUBSEA', color='black', ax=ax,
-                        linewidth=0.5, marker='o', markersize=0.1, alpha=0.3, label='GR')
+                        linewidth=0.5, marker='o', markersize=0.1, alpha=0.4, label='GR')
                     ax.fill_betweenx(df['SUBSEA'], df[curve], 75, facecolor='#ffc300', alpha=0.5)
                     ax.fill_betweenx(df['SUBSEA'], df[curve], 0, facecolor='white')
                     ax.axvline(75, color='black', linewidth=0.5, alpha=0.5)
@@ -133,15 +136,15 @@ class WellLogPlotter(FigureCanvas):
                     # print(f'Shade for {curve}: {shade}')
 
                     next_ax = ax2 if j > 0 and ax2 else ax
-
                     df.plot(
                         x=curve, y='SUBSEA', color=shade, ax=next_ax,
-                        linewidth=0.5, marker='o', markersize=0.1, alpha=0.3, label=curve)
+                        linewidth=0.5, marker='o', markersize=0.1, alpha=0.4, label=curve)
 
-                if j == 0:
-                    ax.set_xlabel(f"{curve} ({unit})", fontsize=5, labelpad=5)
+                if j > 0:
+                    ax2.set_xlabel(f"{curve} ({unit})", fontsize=5, labelpad=3, color='blue')
                 else:
-                    ax2.set_xlabel(f"{curve} ({unit})", fontsize=5, labelpad=5)
+                    ax.set_xlabel(f"{curve} ({unit})", fontsize=5, labelpad=3, color='red')
+
 
             # adjusting proper y limits
             ax.set_ylim(df['SUBSEA'].min(), df['SUBSEA'].max())
@@ -158,9 +161,11 @@ class WellLogPlotter(FigureCanvas):
                 ax.legend(lines_1 + lines_2, labels_1 + labels_2, loc='lower left', fontsize=6)
                 ax2.get_legend().remove() if ax2.get_legend() else None
 
-            ax.grid(True, linestyle='-', alpha=0.4, linewidth=0.5)
             ax.set_title(' and '.join(curves), fontsize=10)
-
+            ax.minorticks_on()
+            ax.tick_params(axis='y', which='minor', labelsize=0)  # hide minor tick labels
+            ax.yaxis.grid(True, which='both', linestyle='-', alpha=0.5, linewidth=0.5)
+            ax.xaxis.grid(True, which='both', linestyle='-', alpha=0.5, linewidth=0.5)
 
     def toggle_tops(self):
         self.show_tops = not self.show_tops
@@ -191,16 +196,15 @@ class WellLogPlotter(FigureCanvas):
         self.horz_well_axes.set_xticks([])
 
         # y axis label
-        self.horz_well_axes.set_ylabel('Subsea (m)', color='darkblue', labelpad=10)
+        self.horz_well_axes.set_ylabel('Subsea (m)', color='darkblue', labelpad=10, size=8)
         self.horz_well_axes.yaxis.set_label_position('right')
         self.horz_well_axes.yaxis.label.set_rotation(270)
 
         # y axis ticks
         self.horz_well_axes.yaxis.set_ticks_position('right')
-        self.horz_well_axes.tick_params(axis='y', colors='darkblue')
+        self.horz_well_axes.tick_params(axis='y', labelsize=8, colors='darkblue', length=3)
 
         xmin, xmax = horz_df['EW'].min(), horz_df['EW'].max()
-        # print(f'xmin for EW: {xmin}, xmax for EW: {xmax}')
         self.horz_well_axes.set_xlim(xmin, xmax)
 
         # sea level line
@@ -208,17 +212,19 @@ class WellLogPlotter(FigureCanvas):
                                     label='Sea Level')
 
         for i in range(1, len(horz_df['SS'].values)):
-            if horz_df['SS'].values[i] == horz_df['SS'].values[i - 1]:
+            if horz_df['SS'].values[i-1] - horz_df['SS'].values[i] <= 0.8:
                 constant = horz_df['SS'].values[i]
                 self.horz_well_axes.axhline(constant, 0, 1, color='#4A3728', lw=1.5, ls='-', alpha=0.8,
                                             label='Constant')
+                print(f'constant: {constant}')
                 break
 
-        self.horz_well_axes.scatter(
+        self.horz_well_axes.plot(
                 horz_df['EW'], horz_df['SS'],  # x, y
-                color='#371D10', marker='.', s=20, label='Horizontal Well')
+                color='#371D10', label='Horizontal Well')
 
         self.horz_well_axes.legend(loc='upper right', fontsize=7)
+
 
 
 class MainWindow(QMainWindow):
