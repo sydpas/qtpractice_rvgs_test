@@ -14,9 +14,30 @@ from matplotlib.backends.backend_qtagg import (
     )
 
 from PySide6.QtWidgets import (
-    QMainWindow, QVBoxLayout, QWidget, QApplication, QToolButton
-    )
+    QMainWindow, QVBoxLayout, QWidget, QApplication, QToolButton, QLabel
+)
 
+from PySide6.QtCore import Qt
+
+
+
+class TitleBox(QLabel):
+    def __init__(self,):
+        super().__init__()
+
+        columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
+        horz_df = horz_loader()
+
+        uwi_title = horz_df['UWI'][0]
+        title_text = f'Horizontal Well ({uwi_title}) on {loc} for {comp}  |  +{kb:.2f} m'
+
+        self.setText(title_text)
+        self.setAlignment(Qt.AlignCenter)
+        self.setStyleSheet("""
+            QLabel {background-color: #9ad1d4; color: black; font-weight: bold; font-size: 14px; padding: 2px;
+                border: 2px solid #80ced7; border-radius: 4px;
+            }""")
+        self.setFixedHeight(30)  # or adjust to your liking
 
 
 class WellLogPlotter(FigureCanvas):
@@ -47,8 +68,6 @@ class WellLogPlotter(FigureCanvas):
 
         # plotting horizontal well
         self.plot_horizontal_well()
-
-        self.title_func()
 
     def plotting_logs(self):
         """
@@ -208,28 +227,20 @@ class WellLogPlotter(FigureCanvas):
         self.horz_well_axes.legend(loc='upper right', fontsize=7)
 
 
-    def title_func(self):
-        columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
-        horz_df = horz_loader()
-
-        uwi_title = horz_df['UWI'][0]
-        plt.suptitle(f'Horizontal Well ({uwi_title}) on\n {loc} for {comp}\n +{kb:.2f}m', fontsize=8, fontweight='bold',
-                     bbox=dict(facecolor='#9ad1d4', edgecolor='#80ced7', boxstyle='square,pad=0.6', alpha=0.8))
-
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Well Log Plotter")
         self.setGeometry(100, 100, 800, 1100)  # width, height
 
-        self.canvas = WellLogPlotter()
-        self.toolbar = NavigationToolbar(self.canvas, self)
+        self.well_plot = WellLogPlotter()
+        self.title_box = TitleBox()
+        self.toolbar = NavigationToolbar(self.well_plot, self)
 
         # for the tops
         self.toggle_button = QToolButton()
         self.toggle_button.setText('Toggle Tops')
-        self.toggle_button.clicked.connect(self.canvas.toggle_tops)
+        self.toggle_button.clicked.connect(self.well_plot.toggle_tops)
         self.toggle_button.setAutoRaise(False)
         # styling the button
         self.toggle_button.setStyleSheet("""
@@ -245,7 +256,8 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout()
         layout.addWidget(self.toolbar)
         self.toolbar.addWidget(self.toggle_button)  # to put button beside toolbar
-        layout.addWidget(self.canvas)
+        layout.addWidget(self.title_box)
+        layout.addWidget(self.well_plot)
 
         # 'wrap' everything
         container = QWidget()
