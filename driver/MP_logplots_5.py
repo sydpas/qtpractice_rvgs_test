@@ -142,11 +142,11 @@ class WellLogPlotter(FigureCanvas):
                         linewidth=0.5, marker='o', markersize=0.1, alpha=0.4, label=curve)
 
                 if j != 0:
-                    ax2.set_xlabel(f"{curve} ({unit})", fontsize=5, labelpad=4)
+                    ax2.set_xlabel(f'{curve} ({unit})', fontsize=5, labelpad=4, fontstyle='italic')
                     print(f'labeled ax2 (top) for {curve}...')
 
                 else:
-                    ax.set_xlabel(f"{curve} ({unit})", fontsize=5, labelpad=4)
+                    ax.set_xlabel(f'{curve} ({unit})', fontsize=5, labelpad=4, fontstyle='italic')
 
             # adjusting proper y limits
             ax.set_ylim(df['SUBSEA'].min(), df['SUBSEA'].max())
@@ -273,7 +273,7 @@ class MainWindow(QMainWindow):
 
 def main():
     try:
-        img = Image.open('C:/Users/sydne/git/rvgs/qtpractice_rvgs_test/icon/horzwellicon.png')
+        img = Image.open('C:/Users/sydne/git/rvgs/qtpractice_rvgs_test/icon/horzwellicon_designed.png')
         img.save('C:/Users/sydne/git/rvgs/qtpractice_rvgs_test/icon/horz_well.ico', format='ICO', sizes=[
             (16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)
         ])
@@ -284,10 +284,9 @@ def main():
     app = QApplication(sys.argv)
     icon_path = 'C:/Users/sydne/git/rvgs/qtpractice_rvgs_test/icon/horz_well.ico'
 
-
     app.setWindowIcon(QIcon(icon_path))
     window = MainWindow()
-    window.setWindowIcon(QIcon(icon_path))
+    window.setWindowIcon(QIcon(icon_path))  # if not working, ctrl shift esp and restart windows expl
     window.show()
     sys.exit(app.exec())
 
