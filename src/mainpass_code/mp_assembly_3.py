@@ -1,6 +1,6 @@
 from mainpass_code.mp_logloader_1 import (mainpass_well)
 
-def organize_curves():
+def organize_curves(file_path):
     """
     This function organizes curves and groups them together for plotting.
 
@@ -9,7 +9,7 @@ def organize_curves():
     """
 
     # call necessary bg functions
-    _, non_depth_curves, _, _, _, _, _ = mainpass_well()
+    _, non_depth_curves, _, _, _, _, _ = mainpass_well(file_path)
 
     # # just for knowing the index of all curves
     # for i, curve in enumerate(non_depth_curves, start=0):

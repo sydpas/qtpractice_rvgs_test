@@ -4,14 +4,14 @@ import os
 
 
 
-def top_load():
+def top_load(file_path):
     """
     This function reads a CSV file and creates a list of all the well tops.
 
     Return:
         well_tops_list: list of all well tops from a CSV file.
     """
-    _, _, _, _, _, _, kb = mainpass_well()
+    _, _, _, _, _, _, kb = mainpass_well(file_path)
 
     current_dir = os.path.dirname(__file__)
     csv_path = os.path.abspath(os.path.join(current_dir, "../../csv_files/1506tops.csv"))

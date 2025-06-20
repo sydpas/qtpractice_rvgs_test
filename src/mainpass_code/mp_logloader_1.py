@@ -2,7 +2,7 @@ import lasio
 import os
 
 
-def mainpass_well():
+def mainpass_well(file_path):
     """
     This function reads an LAS file and prints various information.
 
@@ -12,8 +12,7 @@ def mainpass_well():
          curve_unit_list: list of all curve units excluding depth.
          df: the LAS file converted to a pandas DataFrame.
     """
-    las_path = os.path.join(os.path.dirname(__file__), "../../las_files/MainPass_full_SelCrv.LAS")
-    las = lasio.read(os.path.abspath(las_path))
+    las = lasio.read(os.path.abspath(file_path))
 
     df = las.df()  # converting to pandas dataframe
     df['DEPTH'] = df.index  # adding depth column
