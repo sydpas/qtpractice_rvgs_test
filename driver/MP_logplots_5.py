@@ -29,7 +29,7 @@ class TitleBox(QLabel):
         horz_df = horz_loader()
 
         uwi_title = horz_df['UWI'][0]
-        title_text = f'Horizontal Well ({uwi_title}) on {loc} for {comp}  |  +{kb:.2f} m'
+        title_text = f'Horizontal Well ({uwi_title}) on {loc} for {comp}\n+{kb:.2f} m'
 
         self.setText(title_text)
         self.setAlignment(Qt.AlignCenter)
@@ -37,7 +37,7 @@ class TitleBox(QLabel):
             QLabel {background-color: #9ad1d4; color: black; font-weight: bold; font-size: 14px; padding: 2px;
                 border: 2px solid #80ced7; border-radius: 4px;
             }""")
-        self.setFixedHeight(30)  # or adjust to your liking
+        self.setFixedHeight(60)
 
 
 class WellLogPlotter(FigureCanvas):
@@ -81,6 +81,7 @@ class WellLogPlotter(FigureCanvas):
         self.fig.clear()
         self.axes = self.fig.subplots(1, len(ax_list), sharey = True,
                                       gridspec_kw={'width_ratios': [1, 2, 1, 2, 2]})
+        self.fig.subplots_adjust(bottom=0.15)  # increase margins to prevent overlap
         # subplots: gridbased, good for shared axes
 
         shade_list = ['#0c63e7', '#4c956c', '#f77f00']
@@ -105,6 +106,7 @@ class WellLogPlotter(FigureCanvas):
             ax2.tick_params(axis='x', which='both', bottom=False, top=True, labelbottom=False, labeltop=True,
                             labelsize=6)
 
+
             for j, curve in enumerate(curves):
                 unit = curve_unit_list.get(curve, '')
                 print(f'unit for {curve} is {unit}')
@@ -112,9 +114,10 @@ class WellLogPlotter(FigureCanvas):
                 ax.tick_params(axis='x', which='both', bottom=True, top=False, labelbottom=True, labeltop=False,
                                labelsize=6)
 
-                if i != 0:
-                    ax.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
-                    ax2.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
+                ax.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
+                ax2.tick_params(axis='y', which='both', left=False, right=False, labelleft=False, labelright=False)
+                ax.set_ylabel('')
+                ax2.set_ylabel('')
 
                 if curve == 'GR':
                     df.plot(
@@ -139,14 +142,6 @@ class WellLogPlotter(FigureCanvas):
                     ax.set_xlabel(f"{curve} ({unit})", fontsize=5, labelpad=5)
                 else:
                     ax2.set_xlabel(f"{curve} ({unit})", fontsize=5, labelpad=5)
-
-
-            if ax2:
-                ax2.set_ylabel('Subsea for Logs (m)', color='darkred')
-                ax2.tick_params(axis='y', colors='darkred')
-            else:
-                ax.set_ylabel('Subsea for Logs (m)', color='darkred')
-                ax.tick_params(axis='y', colors='darkred')
 
             # adjusting proper y limits
             ax.set_ylim(df['SUBSEA'].min(), df['SUBSEA'].max())
@@ -178,7 +173,6 @@ class WellLogPlotter(FigureCanvas):
         """
         This function creates a horizontal well overlay on top of the previous well logs.
         """
-        columns, non_depth_curves, curve_unit_list, df, loc, comp, kb = mainpass_well()
         horz_df = horz_loader()
 
         # create an overlay axis, will have to fix width and height
@@ -193,11 +187,11 @@ class WellLogPlotter(FigureCanvas):
             spine.set_alpha(0)
 
         # x axis
-        self.horz_well_axes.set_xlabel('E-W Offset')
+        self.horz_well_axes.set_xlabel('E-W Offset', labelpad=15)
         self.horz_well_axes.set_xticks([])
 
         # y axis label
-        self.horz_well_axes.set_ylabel('Subsea for Horz Well (m)', color='darkblue')
+        self.horz_well_axes.set_ylabel('Subsea (m)', color='darkblue', labelpad=10)
         self.horz_well_axes.yaxis.set_label_position('right')
         self.horz_well_axes.yaxis.label.set_rotation(270)
 
@@ -254,10 +248,14 @@ class MainWindow(QMainWindow):
         """)
 
         layout = QVBoxLayout()
+        layout.setSpacing(2)
+        layout.setContentsMargins(10,10,10,10)
+
         layout.addWidget(self.toolbar)
         self.toolbar.addWidget(self.toggle_button)  # to put button beside toolbar
         layout.addWidget(self.title_box)
         layout.addWidget(self.well_plot)
+
 
         # 'wrap' everything
         container = QWidget()
